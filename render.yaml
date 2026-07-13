@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: guides-nepal-backend
+    env: docker
+    region: oregon
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    dockerfilePath: backend/Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENV
+        value: production
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: BACKEND_CORS_ORIGINS
+        value: https://guides-nepal-frontend.vercel.app,https://guides-nepal-dashboard.vercel.app
+      - key: VITE_SUPABASE_URL
+        value: https://wuyxvqkokyhjbfzemjyw.supabase.co
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        value: sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL

@@ -1,0 +1,110 @@
+import os
+from pydantic_settings import BaseSettings
+from typing import List
+
+
+class Settings(BaseSettings):
+    PROJECT_NAME: str = "Guides-Nepal Backend"
+    API_V1_STR: str = "/api/v1"
+    
+    # Environment
+    ENV: str = os.getenv("ENV", "development")
+    DEBUG: bool = ENV == "development"
+
+    # Security - CRITICAL: Must be set in production
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "CHANGEME_IN_PRODUCTION_SECRET_KEY_12345")
+    if SECRET_KEY == "CHANGEME_IN_PRODUCTION_SECRET_KEY_12345" and ENV == "production":
+        raise ValueError("❌ SECURITY ERROR: SECRET_KEY must be set in production!")
+    
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    
+    # CORS - Restrict to specific origins only
+    BACKEND_CORS_ORIGINS: List[str] = [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:4173",
+        "http://localhost:3000",
+    ]
+    
+    # Security Headers
+    SECURE_HEADERS: dict = {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains" if not DEBUG else "",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
+    }
+
+    # Rate Limiting
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_REQUESTS: int = 100
+    RATE_LIMIT_PERIOD: int = 60  # seconds
+    
+    # Authentication
+    REQUIRE_HTTPS: bool = not DEBUG
+    TOKEN_ALGORITHM: str = "HS256"
+    
+    # Password Policy
+    MIN_PASSWORD_LENGTH: int = 8
+    REQUIRE_PASSWORD_UPPERCASE: bool = True
+    REQUIRE_PASSWORD_NUMBERS: bool = True
+    REQUIRE_PASSWORD_SPECIAL: bool = True
+
+    # Dev seeding (guarded - ONLY in development)
+    DEV_ALLOW_SEED: bool = bool(os.getenv("DEV_ALLOW_SEED", False)) if ENV == "development" else False
+    DEV_SEED_ADMIN_EMAIL: str | None = os.getenv("DEV_SEED_ADMIN_EMAIL") if ENV == "development" else None
+    DEV_SEED_ADMIN_PASSWORD: str | None = os.getenv("DEV_SEED_ADMIN_PASSWORD") if ENV == "development" else None
+
+    # Database - Use DATABASE_URL in production for security
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL",
+        "postgresql://postgres:postgres@localhost:5432/guides_nepal"
+    )
+
+    # AI Services
+    OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY")
+    AI_MODEL: str = os.getenv("AI_MODEL", "gpt-4o-mini")
+    AI_SYSTEM_PROMPT: str = os.getenv(
+        "AI_SYSTEM_PROMPT",
+        "You are Maila Dai, a friendly Nepali guide. Give straight, direct answers first, then (optional) one short follow-up. Prefer concrete numbers, short lists, and clear steps. Be warm but concise. For travel, culture, food, and bookings: provide practical suggestions. If live data is needed, fetch when possible; otherwise give typical ranges without long disclaimers.",
+    )
+    AI_PROVIDER: str = os.getenv("AI_PROVIDER", "auto")
+    OLLAMA_URL: str | None = os.getenv("OLLAMA_URL")
+    OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3.2:latest")
+
+    # OAuth (require HTTPS redirect URIs in production)
+    GOOGLE_CLIENT_ID: str | None = os.getenv("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET: str | None = os.getenv("GOOGLE_CLIENT_SECRET")
+    GOOGLE_REDIRECT_URI: str | None = os.getenv("GOOGLE_REDIRECT_URI")
+    FACEBOOK_CLIENT_ID: str | None = os.getenv("FACEBOOK_CLIENT_ID")
+    FACEBOOK_CLIENT_SECRET: str | None = os.getenv("FACEBOOK_CLIENT_SECRET")
+    FACEBOOK_REDIRECT_URI: str | None = os.getenv("FACEBOOK_REDIRECT_URI")
+    FRONTEND_OAUTH_REDIRECT: str | None = os.getenv("FRONTEND_OAUTH_REDIRECT")
+
+    # Logging & Monitoring
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO" if not DEBUG else "DEBUG")
+    ENABLE_REQUEST_LOGGING: bool = True
+
+    class Config:
+        case_sensitive = True
+
+
+settings = Settings()
+
+# Parse CORS origins from environment if provided
+cors_env = os.getenv("BACKEND_CORS_ORIGINS")
+if cors_env:
+    settings.BACKEND_CORS_ORIGINS = [
+        o.strip() for o in cors_env.split(",") if o.strip()
+    ]
+
+# Validate HTTPS in production
+if settings.ENV == "production":
+    for origin in settings.BACKEND_CORS_ORIGINS:
+        if origin.startswith("http://") and not origin.startswith("http://localhost"):
+            raise ValueError(f"⚠️  SECURITY WARNING: Non-HTTPS origin in production: {origin}")
+

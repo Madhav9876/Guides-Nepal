@@ -1,0 +1,591 @@
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Header } from '../components/common/Header';
+import { Footer } from '../components/common/Footer';
+import { Button } from '../components/common/Button';
+import { Star, Clock, User, ShieldCheck, MapPin, CheckCircle, Calendar, ArrowLeft, Bookmark, DollarSign } from 'lucide-react';
+import { useBookingStore } from '../store/bookingStore';
+import { useAuthStore } from '../store/authStore';
+import { useProfileStore } from '../store/profileStore';
+import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
+import { CurrencyConverterModal } from '../components/common/CurrencyConverterModal';
+
+interface Host {
+  name: string;
+  image: string;
+  rating: number;
+  reviews: number;
+  about: string;
+}
+
+interface Experience {
+  id: number;
+  title: string;
+  city: string;
+  rating: number;
+  reviews: number;
+  price: number;
+  duration: string;
+  images: string[];
+  description: string;
+  highlights: string[];
+  host: Host;
+}
+
+// Extended mock data for experiences
+const experiencesData: Record<string, Experience> = {
+  // Kathmandu
+  '101': {
+    id: 101,
+    title: 'Hidden Gems of Kathmandu',
+    city: 'Kathmandu',
+    rating: 4.9,
+    reviews: 124,
+    price: 25,
+    duration: '3 hours',
+    images: [
+      'https://images.unsplash.com/photo-1589923188900-85688317b96e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      'https://images.unsplash.com/photo-1589923188900-85688317b96e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      'https://images.unsplash.com/photo-1589923188900-85688317b96e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80'
+    ],
+    description: "Discover the secret side of Kathmandu that tourists often miss. We'll navigate through narrow alleys, visit hidden stupas in private courtyards, and taste the best local tea. This tour is perfect for those who want to see the authentic daily life of the city.",
+    highlights: [
+      'Visit 3 hidden temples not on the tourist map',
+      'Try authentic local snacks and tea',
+      'Learn about Newari architecture and history',
+      'Explore the oldest markets in the city'
+    ],
+    host: {
+      name: 'Rajesh',
+      image: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&h=80&q=80',
+      rating: 5.0,
+      reviews: 45,
+      about: "Namaste! I'm Rajesh, born and raised in the heart of Kathmandu. I love sharing stories about my city's history and culture that you won't find in guidebooks."
+    }
+  },
+  '102': {
+    id: 102,
+    title: 'Authentic Newari Food Tour',
+    city: 'Kathmandu',
+    rating: 5.0,
+    reviews: 89,
+    price: 35,
+    duration: '4 hours',
+    images: [
+      'https://images.unsplash.com/photo-1604542052539-b8c13b852152?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      'https://images.unsplash.com/photo-1604542052539-b8c13b852152?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80'
+    ],
+    description: "Embark on a culinary journey through the flavors of the Newari people. We will visit local eateries and try dishes like Bara, Chatamari, and the famous Yomari.",
+    highlights: ['Taste 5 different Newari dishes', 'Visit a traditional kitchen', 'Learn about spices used in Nepali cooking'],
+    host: {
+      name: 'Sita',
+      image: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&h=80&q=80',
+      rating: 4.9,
+      reviews: 32,
+      about: "I am a food enthusiast and love cooking traditional meals for my family. Join me to explore the delicious side of Kathmandu!"
+    }
+  },
+  '103': {
+    id: 103,
+    title: 'Spiritual Morning at Swayambhunath',
+    city: 'Kathmandu',
+    rating: 4.8,
+    reviews: 210,
+    price: 20,
+    duration: '2.5 hours',
+    images: [
+      'https://images.unsplash.com/photo-1589923188900-85688317b96e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      'https://images.unsplash.com/photo-1589923188900-85688317b96e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80'
+    ],
+    description: "Start your day with peace and spirituality at the Monkey Temple. Watch the sunrise over the valley and observe the morning rituals of the monks and locals.",
+    highlights: ['Sunrise view of Kathmandu Valley', 'Observe morning Buddhist rituals', 'Feed the monkeys (carefully!)'],
+    host: {
+      name: 'Nima',
+      image: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&h=80&q=80',
+      rating: 4.9,
+      reviews: 67,
+      about: "I grew up in a Buddhist family and Swayambhunath has always been a special place for me. I'd love to share its spiritual significance with you."
+    }
+  },
+  // Pokhara
+  '201': {
+    id: 201,
+    title: 'Sunrise at Sarangkot',
+    city: 'Pokhara',
+    rating: 4.9,
+    reviews: 312,
+    price: 30,
+    duration: '3 hours',
+    images: [
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80'
+    ],
+    description: "Witness the majestic Annapurna range light up with the first rays of the sun. A short drive and hike will take us to the best viewpoint in Pokhara.",
+    highlights: ['Breathtaking sunrise views', 'See Mt. Machhapuchhre up close', 'Morning tea with a view'],
+    host: {
+      name: 'Karma',
+      image: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&h=80&q=80',
+      rating: 5.0,
+      reviews: 55,
+      about: "The mountains are my home. I love showing visitors the beauty of the Himalayas from the best vantage points."
+    }
+  },
+  '202': {
+    id: 202,
+    title: 'Phewa Lake Boat Ride & Hike',
+    city: 'Pokhara',
+    rating: 4.8,
+    reviews: 156,
+    price: 40,
+    duration: '4 hours',
+    images: [
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80'
+    ],
+    description: "Row across the serene Phewa Lake and hike up to the World Peace Pagoda. Enjoy panoramic views of the lake and the city below.",
+    highlights: ['Traditional boat ride', 'Hike through lush forest', 'Visit the World Peace Pagoda'],
+    host: {
+      name: 'Anjali',
+      image: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&h=80&q=80',
+      rating: 4.9,
+      reviews: 42,
+      about: "I am a nature lover and hiking enthusiast. This trail is my favorite way to disconnect and enjoy nature."
+    }
+  },
+  // Lalitpur
+  '301': {
+    id: 301,
+    title: 'Patan Durbar Square Walk',
+    city: 'Lalitpur',
+    rating: 4.9,
+    reviews: 180,
+    price: 28,
+    duration: '2.5 hours',
+    images: [
+      'https://images.unsplash.com/photo-1547292283-7c664a092534?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      'https://images.unsplash.com/photo-1547292283-7c664a092534?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80'
+    ],
+    description: "Explore the architectural marvels of Patan Durbar Square. Visit the museum, the Krishna Mandir, and learn about the history of the Malla kings.",
+    highlights: ['Visit the Patan Museum', 'Admire the Krishna Mandir', 'Explore hidden courtyards'],
+    host: {
+      name: 'Suresh',
+      image: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&h=80&q=80',
+      rating: 4.9,
+      reviews: 76,
+      about: "History and art are my passions. I can tell you stories about every stone and statue in this square."
+    }
+  },
+  // Bhaktapur
+  '401': {
+    id: 401,
+    title: 'Bhaktapur Heritage Walk',
+    city: 'Bhaktapur',
+    rating: 4.9,
+    reviews: 245,
+    price: 35,
+    duration: '3.5 hours',
+    images: [
+      'https://images.unsplash.com/photo-1547292283-7c664a092534?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
+      'https://images.unsplash.com/photo-1547292283-7c664a092534?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80'
+    ],
+    description: "Walk through the living museum of Bhaktapur. See the 55-Window Palace, the Nyatapola Temple, and witness pottery making in the streets.",
+    highlights: ['Visit the tallest temple in Nepal', 'See the 55-Window Palace', 'Watch potters at work'],
+    host: {
+      name: 'Krishna',
+      image: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&h=80&q=80',
+      rating: 5.0,
+      reviews: 98,
+      about: "Bhaktapur is not just a city, it's a lifestyle. I want to show you the traditions that have been kept alive for centuries."
+    }
+  }
+};
+
+const ExperiencePage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const experience = id ? experiencesData[id] : undefined;
+  
+  console.log('ExperiencePage rendered with id:', id);
+  console.log('Experience found:', experience);
+  
+  const { addBooking } = useBookingStore();
+  const { isAuthenticated } = useAuthStore();
+  const [isBooked, setIsBooked] = useState(false);
+  const { addBookmark } = useProfileStore();
+
+  // Currency converter modal state
+  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
+
+  // Inline currency converter state
+  const [fromCurrency, setFromCurrency] = useState('EUR');
+  const [toCurrency, setToCurrency] = useState('USD');
+  const [amount, setAmount] = useState('');
+  const [convertedAmount, setConvertedAmount] = useState('');
+
+  const handleCurrencyConvert = () => {
+    if (!amount || isNaN(Number(amount))) return;
+    
+    try {
+      const result = convertCurrency(Number(amount), fromCurrency, toCurrency);
+      const formattedResult = formatCurrency(result, toCurrency);
+      setConvertedAmount(formattedResult);
+    } catch {
+      setConvertedAmount('Conversion failed');
+    }
+  };
+
+  const handleBooking = () => {
+    if (!isAuthenticated) {
+      alert('Please log in to book an experience');
+      return;
+    }
+
+    if (experience) {
+      addBooking({
+        id: Math.random().toString(36).substr(2, 9),
+        experienceId: experience.id,
+        experienceTitle: experience.title,
+        city: experience.city,
+        date: new Date().toISOString(), // In real app, this would be selected date
+        guests: 2, // Defaulting to 2 for now
+        price: experience.price,
+        image: experience.images[0],
+        status: 'upcoming'
+      });
+      setIsBooked(true);
+      setTimeout(() => navigate('/bookings'), 1000);
+    }
+  };
+
+  const handleBookmark = () => {
+    if (!experience) return;
+    addBookmark({
+      id: `exp-${experience.id}`,
+      title: experience.title,
+      city: experience.city,
+      image: experience.images[0],
+      createdAt: new Date().toISOString(),
+      link: `/experience/${experience.id}`,
+    });
+    alert('Saved to bookmarks');
+  };
+
+  if (!experience) {
+    return (
+      <div className="min-h-screen flex flex-col font-sans">
+        <Header />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+             <h1 className="text-4xl font-bold text-primary mb-4">Experience not found (ID: {id})</h1>
+             <p className="text-gray-600 mb-4">Available experiences: {Object.keys(experiencesData).join(', ')}</p>
+             <Link to="/">
+               <Button>Go Home</Button>
+             </Link>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col font-sans bg-background-cream">
+      <Header />
+
+      <main className="flex-grow">
+        {/* Gallery Grid (Mobile: Carousel, Desktop: Grid) */}
+        <div className="h-[40vh] md:h-[60vh] relative bg-slate-100">
+           <button 
+             onClick={() => navigate(-1)} 
+             className="absolute top-8 left-8 z-20 flex items-center gap-2 text-white hover:text-accent font-bold transition-colors bg-black/20 hover:bg-black/40 backdrop-blur-sm px-4 py-2 rounded-full"
+           >
+             <ArrowLeft className="w-5 h-5" />
+             Back
+           </button>
+           {/* Simple single image for now, but could be a grid */}
+          <img
+            src={experience.images[0]}
+            alt={experience.title}
+            className="w-full h-full object-cover"
+            onError={(e) => (e.currentTarget.src = '/images/placeholder.svg')}
+          />
+           <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-md text-sm font-bold shadow-sm">
+             View all photos
+           </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-8">
+           <div className="flex flex-col lg:flex-row gap-12">
+              
+              {/* Left Content */}
+              <div className="lg:w-2/3 space-y-8">
+                 <div>
+                    <div className="flex items-center gap-2 text-primary font-bold uppercase text-xs tracking-wider mb-2">
+                       <MapPin className="w-4 h-4" />
+                       {experience.city}
+                    </div>
+                    <h1 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">{experience.title}</h1>
+                    <div className="flex items-center gap-4 text-sm">
+                       <div className="flex items-center gap-1 font-bold">
+                          <Star className="w-4 h-4 fill-secondary text-secondary" />
+                          {experience.rating} <span className="text-slate-500 font-normal">({experience.reviews} reviews)</span>
+                       </div>
+                       <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
+                       <div className="flex items-center gap-1 text-slate-600">
+                          <Clock className="w-4 h-4" />
+                          {experience.duration}
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="border-t border-b border-slate-200 py-6 flex flex-wrap gap-6">
+                    <div className="flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                          <User className="w-5 h-5" />
+                       </div>
+                       <div>
+                          <p className="font-bold text-sm">Private Tour</p>
+                          <p className="text-xs text-slate-500">Only you and your host</p>
+                       </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                          <ShieldCheck className="w-5 h-5" />
+                       </div>
+                       <div>
+                          <p className="font-bold text-sm">100% Personalized</p>
+                          <p className="text-xs text-slate-500">Customize your experience</p>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div>
+                    <h2 className="text-2xl font-bold mb-4">What you'll do</h2>
+                    <p className="text-slate-700 leading-relaxed text-lg">{experience.description}</p>
+                 </div>
+
+                 <div>
+                    <h2 className="text-2xl font-bold mb-4">Highlights</h2>
+                    <ul className="space-y-3">
+                       {experience.highlights?.map((highlight: string, index: number) => (
+                          <li key={index} className="flex items-start gap-3 text-slate-700">
+                             <CheckCircle className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
+                             <span>{highlight}</span>
+                          </li>
+                       ))}
+                    </ul>
+                 </div>
+
+                 {/* Inline Currency Converter Section */}
+                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border-2 border-blue-300 shadow-lg mt-8 mb-8">
+                    <div className="flex items-center gap-3 mb-6">
+                       <DollarSign className="w-8 h-8 text-blue-600" />
+                       <div>
+                          <h2 className="text-2xl font-bold text-blue-900">Currency Converter</h2>
+                          <p className="text-blue-700 text-sm">Convert prices to your preferred currency</p>
+                       </div>
+                       <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full ml-auto">NEW</span>
+                    </div>
+                    
+                    <div className="bg-white p-4 rounded-xl border border-blue-200 mb-4">
+                       <div className="grid grid-cols-2 gap-3 mb-3">
+                          <div>
+                             <label className="block text-xs font-medium text-gray-700 mb-1">From</label>
+                             <select 
+                                value={fromCurrency}
+                                onChange={(e) => setFromCurrency(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                             >
+                                <option value="EUR">EUR €</option>
+                                <option value="USD">USD $</option>
+                                <option value="GBP">GBP £</option>
+                                <option value="NPR">NPR ₨</option>
+                             </select>
+                          </div>
+                          <div>
+                             <label className="block text-xs font-medium text-gray-700 mb-1">To</label>
+                             <select 
+                                value={toCurrency}
+                                onChange={(e) => setToCurrency(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                             >
+                                <option value="USD">USD $</option>
+                                <option value="EUR">EUR €</option>
+                                <option value="GBP">GBP £</option>
+                                <option value="NPR">NPR ₨</option>
+                             </select>
+                          </div>
+                       </div>
+                       <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Amount</label>
+                          <input 
+                             type="number" 
+                             value={amount}
+                             onChange={(e) => setAmount(e.target.value)}
+                             placeholder="Enter amount" 
+                             className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                       </div>
+                    </div>
+
+                    {convertedAmount && (
+                        <div className="bg-blue-100 p-4 rounded-lg mb-4 border border-blue-200">
+                           <p className="text-blue-800 font-bold text-lg">{convertedAmount}</p>
+                           <p className="text-blue-600 text-xs">Exchange rate may vary</p>
+                        </div>
+                     )}
+
+                     <div className="grid grid-cols-2 gap-2 mb-4">
+                        <button 
+                           onClick={() => { setAmount(experience.price.toString()); setFromCurrency('EUR'); setToCurrency('USD'); }}
+                           className="bg-white hover:bg-blue-50 text-blue-700 py-2 px-3 rounded-lg transition-colors text-sm font-medium border border-blue-200"
+                        >
+                           € → $
+                        </button>
+                        <button 
+                           onClick={() => { setAmount(experience.price.toString()); setFromCurrency('USD'); setToCurrency('EUR'); }}
+                           className="bg-white hover:bg-blue-50 text-blue-700 py-2 px-3 rounded-lg transition-colors text-sm font-medium border border-blue-200"
+                        >
+                           $ → €
+                        </button>
+                        <button 
+                           onClick={() => { setAmount(experience.price.toString()); setFromCurrency('EUR'); setToCurrency('GBP'); }}
+                           className="bg-white hover:bg-blue-50 text-blue-700 py-2 px-3 rounded-lg transition-colors text-sm font-medium border border-blue-200"
+                        >
+                           € → £
+                        </button>
+                        <button 
+                           onClick={() => { setAmount(experience.price.toString()); setFromCurrency('GBP'); setToCurrency('EUR'); }}
+                           className="bg-white hover:bg-blue-50 text-blue-700 py-2 px-3 rounded-lg transition-colors text-sm font-medium border border-blue-200"
+                        >
+                           £ → €
+                        </button>
+                     </div>
+
+                    <button 
+                        onClick={handleCurrencyConvert}
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-4 rounded-lg transition-all text-base font-bold shadow-lg shadow-blue-500/25 transform hover:scale-[1.02]"
+                     >
+                        Convert Currency
+                     </button>
+                 </div>
+
+                 {/* Currency Converter Button */}
+                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div className="flex items-center justify-between">
+                       <div>
+                          <h2 className="text-2xl font-bold mb-2">Currency Converter</h2>
+                          <p className="text-slate-600">Convert prices to your preferred currency</p>
+                       </div>
+                       <Button 
+                          onClick={() => setIsCurrencyModalOpen(true)}
+                          variant="outline" 
+                          className="flex items-center gap-2"
+                       >
+                          <DollarSign className="w-5 h-5" />
+                          Convert
+                       </Button>
+                    </div>
+                 </div>
+
+                 {/* Host Section */}
+                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h2 className="text-2xl font-bold mb-6">Your Host</h2>
+                    <div className="flex flex-col md:flex-row gap-6 items-start">
+                       <div className="flex-shrink-0 text-center">
+                         <img
+                           src={experience.host.image}
+                           alt={experience.host.name}
+                           className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md mb-2"
+                           onError={(e) => (e.currentTarget.src = '/images/placeholder.svg')}
+                         />
+                          <div className="font-bold text-lg">{experience.host.name}</div>
+                          <div className="text-secondary font-bold text-sm flex items-center justify-center gap-1">
+                             <Star className="w-3 h-3 fill-current" />
+                             {experience.host.rating}
+                          </div>
+                       </div>
+                       <div>
+                          <p className="italic text-slate-600 mb-4">"{experience.host.about}"</p>
+                          <Button variant="outline" size="sm" className="rounded-full">Contact Host</Button>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+
+              {/* Right Sidebar (Booking Card) */}
+              <div className="lg:w-1/3">
+                 <div className="sticky top-24 bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+                    <div className="flex items-center space-x-1 mb-2">
+                       {[...Array(5)].map((_, i) => (
+                          <Star
+                             key={i}
+                             className={`w-5 h-5 ${i < Math.round(experience.rating) ? 'text-brand-yellow fill-brand-yellow' : 'text-gray-300'}`}
+                          />
+                       ))}
+                       <span className="text-sm text-gray-500 ml-2">({experience.reviews} reviews)</span>
+                    </div>
+
+                    <div className="flex items-baseline space-x-2 mb-6">
+                       <span className="text-3xl font-bold text-secondary">€{experience.price}</span>
+                       <span className="text-gray-500">/ person</span>
+                    </div>
+
+                    <div className="space-y-4 mb-6">
+                       <div className="border border-slate-200 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:border-primary transition-colors">
+                          <div className="flex items-center gap-3">
+                             <Calendar className="w-5 h-5 text-slate-400" />
+                             <span className="font-medium text-slate-700">Select Date</span>
+                          </div>
+                          <span className="text-primary font-bold text-sm">Change</span>
+                       </div>
+                       <div className="border border-slate-200 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:border-primary transition-colors">
+                          <div className="flex items-center gap-3">
+                             <User className="w-5 h-5 text-slate-400" />
+                             <span className="font-medium text-slate-700">2 Adults</span>
+                          </div>
+                          <span className="text-primary font-bold text-sm">Change</span>
+                       </div>
+                    </div>
+
+                    <Button 
+                      className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 text-lg rounded-xl mb-4 shadow-lg shadow-primary/20"
+                      onClick={handleBooking}
+                    >
+                       {isBooked ? 'Booked!' : 'Book Now'}
+                    </Button>
+
+                    <div className="text-center text-xs text-slate-500 space-y-2">
+                       <p className="flex items-center justify-center gap-1">
+                          <CheckCircle className="w-3 h-3" />
+                          Free cancellation up to 24h before
+                       </p>
+                       <p>No payment required today</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleBookmark}
+                      className="w-full border border-gray-200 hover:border-primary text-primary font-bold py-3 rounded-xl mt-3 flex items-center justify-center gap-2"
+                    >
+                      <Bookmark className="w-4 h-4" /> Save for later
+                    </button>
+                 </div>
+              </div>
+
+           </div>
+        </div>
+      </main>
+
+      <Footer />
+      
+      {/* Currency Converter Modal */}
+      <CurrencyConverterModal
+        isOpen={isCurrencyModalOpen}
+        onClose={() => setIsCurrencyModalOpen(false)}
+        initialAmount={experience?.price || 0}
+      />
+    </div>
+  );
+};
+
+export default ExperiencePage;

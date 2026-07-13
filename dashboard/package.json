@@ -1,0 +1,35 @@
+{
+  "name": "guides-nepal-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5176",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --port 5176",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint -c .eslintrc.json \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit",
+    "seed:admin": "node scripts/seed-admin.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
+    "@types/react": "^18.2.46",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.4.2",
+    "vite": "^5.0.12"
+  }
+}

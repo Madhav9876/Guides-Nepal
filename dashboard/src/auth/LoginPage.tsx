@@ -1,0 +1,123 @@
+import { FormEvent, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { login } from "../services/api"
+import { normalizeRole } from "../utils/roles"
+import { useAuthStore } from "../state/authStore"
+
+export default function LoginPage() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [remember, setRemember] = useState(true)
+  const [selectRole, setSelectRole] = useState<"admin" | "host" | "guide" | "content-writer">("admin")
+  const { token, role, setToken, setRole, setUser, setError, setLoading, error } = useAuthStore()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (token && role) {
+      navigate(`/dashboard/${role}`, { replace: true })
+    }
+  }, [token, role, navigate])
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    try {
+      if (import.meta.env.VITE_DEV_FAKE_LOGIN === "1") {
+        const me = {
+          id: 1,
+          email: "huhehaha.prakaz@gmail.com",
+          firstName: "Admin",
+          lastName: "User",
+          role: selectRole
+        }
+        setToken("dev-token")
+        setRole(selectRole)
+        setUser(me)
+        navigate(`/dashboard/${me.role}`, { replace: true })
+        if (remember) {
+          try {
+            localStorage.setItem("gn_token", "dev-token")
+            localStorage.setItem("gn_role", me.role)
+            localStorage.setItem("gn_user", JSON.stringify(me))
+          } catch {}
+        }
+        return
+      }
+      const res = await login({ email, password })
+      setToken(res.access_token ?? null)
+      const me = res.user
+      const normalized = normalizeRole(me.role)
+      if (!normalized) {
+        setError("Your account does not have dashboard access")
+        return
+      }
+      setRole(normalized)
+      setUser({ ...me, role: normalized })
+      navigate(`/dashboard/${normalized}`, { replace: true })
+      if (remember) {
+        try {
+          localStorage.setItem("gn_token", res.access_token ?? "")
+          localStorage.setItem("gn_role", normalized)
+          localStorage.setItem("gn_user", JSON.stringify({ ...me, role: normalized }))
+        } catch {}
+      }
+    } catch {
+      setError("Login failed")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen grid place-items-center bg-peach">
+      <form onSubmit={onSubmit} className="w-96 bg-white rounded-2xl shadow-lg p-6 space-y-4">
+        <div className="text-2xl font-bold text-darkBlue">Dashboard Login</div>
+        {error && <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 px-3 py-2 text-sm">{error}</div>}
+        <div className="space-y-2">
+          <label className="block text-sm text-gray-700">Role</label>
+          <select
+            className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-yellow"
+            value={selectRole}
+            onChange={(e) => setSelectRole(e.target.value as any)}
+          >
+            <option value="admin">Admin</option>
+            <option value="host">Host</option>
+            <option value="guide">Guide</option>
+            <option value="content-writer">Contant Writer</option>
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm text-gray-700">Email</label>
+          <input
+            className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-yellow"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm text-gray-700">Password</label>
+          <input
+            className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-yellow"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+          Remember me
+        </label>
+        <button
+          type="submit"
+          className="w-full rounded-lg bg-brand-yellow text-darkBlue font-semibold py-2 hover:opacity-90"
+        >
+          Login
+        </button>
+      </form>
+    </div>
+  )
+}
