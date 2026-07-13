@@ -10,7 +10,7 @@
 
 - [ ] **DATABASE_URL** - Verified correct
   - Uses postgresql:// protocol
-  - Has strong password (Guidesnepal@123 not strong enough!)
+  - Has strong password (<SUPABASE_DB_PASSWORD> not strong enough!)
   - Uses SSL/TLS connection to Supabase
   - DO NOT commit to git
 

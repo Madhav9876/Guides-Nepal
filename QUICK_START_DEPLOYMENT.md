@@ -34,7 +34,7 @@ git push -u origin main
 2. Check the **DATABASE_URL** value:
    - If it shows `***`: Click "Edit" and paste:
      ```
-     postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+     postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
      ```
    - **IMPORTANT**: Use `%40` NOT `@`
 
@@ -131,10 +131,10 @@ Once backend is live ✅:
 **Common fix:**
 ```
 DATABASE_URL must be:
-postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
 
 NOT:
-postgresql://postgres:Guidesnepal@123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
 ```
 
 ---

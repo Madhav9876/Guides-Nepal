@@ -8,8 +8,11 @@ services:
     healthCheckPath: /health
     dockerfilePath: backend/Dockerfile
     envVars:
+      # IMPORTANT: Set DATABASE_URL as a secret in the Render dashboard
+      # (Service -> Environment) instead of committing it here, since this
+      # repo is public. Use `sync: false` so Render keeps the dashboard value.
       - key: DATABASE_URL
-        value: postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+        sync: false
       - key: SECRET_KEY
         generateValue: true
       - key: ENV
@@ -18,7 +21,3 @@ services:
         sync: false
       - key: BACKEND_CORS_ORIGINS
         value: https://guides-nepal-frontend.vercel.app,https://guides-nepal-dashboard.vercel.app
-      - key: VITE_SUPABASE_URL
-        value: https://wuyxvqkokyhjbfzemjyw.supabase.co
-      - key: VITE_SUPABASE_PUBLISHABLE_KEY
-        value: sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL

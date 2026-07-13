@@ -98,7 +98,7 @@ After deployment, go to your backend service settings and verify/update:
 
 1. **DATABASE_URL**: 
    ```
-   postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+   postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
    ```
 
 2. **BACKEND_CORS_ORIGINS** (update with your actual Vercel URLs):

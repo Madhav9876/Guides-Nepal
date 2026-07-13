@@ -48,7 +48,7 @@ Render will read `render.yaml` automatically.
 
    ```yaml
    - key: DATABASE_URL
-     value: postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+     value: postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
    ```
    ⚠️ **IMPORTANT:** The password has `@` symbol, so use `%40` in URL
 
@@ -292,8 +292,8 @@ Should see: `✅ Backend reachable: {status: 'ok', version: '1.0'}`
 
 1. **Check DATABASE_URL format**
    ```
-   ✅ postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
-   ❌ postgresql://postgres:Guidesnepal@123@... (wrong, @ not encoded)
+   ✅ postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+   ❌ postgresql://postgres:<SUPABASE_DB_PASSWORD>@... (wrong, @ not encoded)
    ```
 
 2. **Check password special characters**
@@ -410,7 +410,7 @@ Should see: `✅ Backend reachable: {status: 'ok', version: '1.0'}`
 - [ ] Check DATABASE_URL format
 - [ ] Prepare DATABASE_URL value:
   ```
-  postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+  postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
   ```
 
 ### Before Deploying Frontend

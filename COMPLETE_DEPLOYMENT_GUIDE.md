@@ -93,14 +93,14 @@ Check these critical files:
      - name: guides-nepal-backend
        envVars:
          - key: DATABASE_URL
-           value: postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+           value: postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
    ```
 
 3. If DATABASE_URL shows `***`:
    - Click **"Edit"**
    - Paste correct value:
      ```
-     postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+     postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
      ```
    - **IMPORTANT**: `@` in password must be `%40`
 
@@ -339,7 +339,7 @@ access-control-allow-credentials: true
 1. Check DATABASE_URL format
 2. Test locally first:
    ```bash
-   export DATABASE_URL="postgresql://postgres:Guidesnepal%40123@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres"
+   export DATABASE_URL="postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres"
    python -c "from sqlalchemy import create_engine; engine = create_engine('$DATABASE_URL'); print('✅ Connected')"
    ```
 3. If fails, check password and URL format
