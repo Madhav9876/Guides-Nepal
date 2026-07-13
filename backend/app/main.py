@@ -58,8 +58,15 @@ app.include_router(
 
 # Static file mounting with restrictions
 uploads_dir = os.path.join(os.path.dirname(__file__), "uploads")
-os.makedirs(uploads_dir, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+try:
+    os.makedirs(uploads_dir, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
+except PermissionError:
+    # If uploads dir can't be created, continue without file serving
+    # (common in containerized environments with read-only filesystems)
+    logger.warning(f"Could not create uploads directory at {uploads_dir}")
+except Exception as e:
+    logger.warning(f"Could not mount uploads directory: {e}")
 
 
 @app.get("/health")
