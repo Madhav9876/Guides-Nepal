@@ -23,12 +23,84 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
     phone: '',
     password: ''
   });
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const validateEmail = (email: string) => {
+    if (!email) {
+      setEmailError('Email is required');
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError('Please enter a valid email address');
+      return false;
+    }
+    setEmailError(null);
+    return true;
+  };
+
+  const validatePassword = (password: string) => {
+    if (!password) {
+      setPasswordError('Password is required');
+      return false;
+    }
+    if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+      return false;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setPasswordError('Password must contain at least one uppercase letter');
+      return false;
+    }
+    if (!/[0-9]/.test(password)) {
+      setPasswordError('Password must contain at least one number');
+      return false;
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};:,.<>?]/.test(password)) {
+      setPasswordError('Password must contain at least one special character (!@#$%^&*)');
+      return false;
+    }
+    setPasswordError(null);
+    return true;
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, email: e.target.value });
+    if (emailError) validateEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, password: e.target.value });
+    if (passwordError) validatePassword(e.target.value);
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const isEmailValid = validateEmail(formData.email);
+    const isPasswordValid = validatePassword(formData.password);
+
+    if (!isEmailValid || !isPasswordValid) {
+      return;
+    }
+
+    if (!formData.firstName.trim()) {
+      setError('First name is required');
+      return;
+    }
+    if (!formData.lastName.trim()) {
+      setError('Last name is required');
+      return;
+    }
+    if (!formData.phone.trim()) {
+      setError('Phone number is required');
+      return;
+    }
+
     setLoading(true);
     try {
       const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
@@ -199,20 +271,21 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
               {/* Form */}
               <form className="space-y-4" onSubmit={handleSignup}>
                 <div className="relative">
-                  <input 
-                    type="email" 
-                    placeholder="Email" 
+                  <input
+                    type="email"
+                    placeholder="Email"
                     required
-                    className="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-yellow focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900 bg-gray-50 focus:bg-white"
+                    className={`w-full px-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-brand-yellow focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900 bg-gray-50 focus:bg-white ${emailError ? 'border-red-500' : 'border-gray-200'}`}
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={handleEmailChange}
                   />
+                  {emailError && <div className="text-red-600 text-xs mt-1">{emailError}</div>}
                 </div>
-                
+
                 <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="First Name" 
+                  <input
+                    type="text"
+                    placeholder="First Name"
                     required
                     className="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-yellow focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900 bg-gray-50 focus:bg-white"
                     value={formData.firstName}
@@ -221,9 +294,9 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
                 </div>
 
                 <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Last Name" 
+                  <input
+                    type="text"
+                    placeholder="Last Name"
                     required
                     className="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-yellow focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900 bg-gray-50 focus:bg-white"
                     value={formData.lastName}
@@ -232,32 +305,33 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
                 </div>
 
                 <div className="relative">
-                  <input 
-                    type="tel" 
-                    placeholder="Phone Number" 
+                  <input
+                    type="tel"
+                    placeholder="Phone Number"
                     required
                     className="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-yellow focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900 bg-gray-50 focus:bg-white"
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   />
                 </div>
-                
+
                 <div className="relative">
-                  <input 
-                    type={showPassword ? "text" : "password"} 
-                    placeholder="Password" 
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
                     required
-                    className="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-yellow focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900 pr-12 bg-gray-50 focus:bg-white"
+                    className={`w-full px-4 py-3.5 border rounded-xl focus:ring-2 focus:ring-brand-yellow focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900 pr-12 bg-gray-50 focus:bg-white ${passwordError ? 'border-red-500' : 'border-gray-200'}`}
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={handlePasswordChange}
                   />
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#213448]"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
+                  {passwordError && <div className="text-red-600 text-xs mt-1">{passwordError}</div>}
                 </div>
 
                 {error && (

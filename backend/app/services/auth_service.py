@@ -7,6 +7,7 @@ from app.core.security import (
     verify_password,
     create_access_token,
     create_refresh_token,
+    validate_password_strength,
 )
 import secrets
 
@@ -21,6 +22,10 @@ class AuthService:
     def register_user(self, user_in: UserCreate) -> User:
         if self.get_user_by_email(user_in.email):
             raise Exception("Email already registered")
+
+        is_valid, error_message = validate_password_strength(user_in.password)
+        if not is_valid:
+            raise Exception(error_message)
 
         db_user = User(
             email=user_in.email,
@@ -38,6 +43,8 @@ class AuthService:
     def authenticate_user(self, email: str, password: str) -> Optional[User]:
         user = self.get_user_by_email(email)
         if not user:
+            return None
+        if not user.is_active:
             return None
         if not verify_password(password, str(user.hashed_password)):
             return None

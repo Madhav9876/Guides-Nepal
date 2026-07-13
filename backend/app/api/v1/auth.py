@@ -19,7 +19,13 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)) -> dict:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
-    user = auth_service.register_user(user_in)
+    try:
+        user = auth_service.register_user(user_in)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
     return auth_service.create_tokens(user)
 
 
@@ -43,7 +49,13 @@ def seed_admin(db: Session = Depends(get_db)) -> dict:
             firstName="Admin",
             lastName="User",
         )
-        user = auth_service.register_user(user_in)
+        try:
+            user = auth_service.register_user(user_in)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e),
+            )
         return auth_service.create_tokens(user)
     return auth_service.create_tokens(existing)
 
