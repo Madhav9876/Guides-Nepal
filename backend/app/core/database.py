@@ -4,7 +4,17 @@ from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 from typing import Generator
 
-engine = create_engine(settings.DATABASE_URL)
+# SQLite (useful for local development without Postgres) needs a special flag
+# so connections can be shared across FastAPI's threadpool. For Postgres we
+# enable pool_pre_ping to avoid stale/broken connections.
+if settings.DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        settings.DATABASE_URL,
+        connect_args={"check_same_thread": False},
+    )
+else:
+    engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

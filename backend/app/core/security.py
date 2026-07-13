@@ -6,15 +6,22 @@ from typing import Any, Optional, Union, cast
 import re
 import logging
 
+import bcrypt
 from jose import jwt
 from jose.exceptions import JWTError
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# bcrypt only uses the first 72 bytes of a password. bcrypt >= 4.1 raises instead
+# of silently truncating, so we truncate explicitly and consistently for both
+# hashing and verification.
+_BCRYPT_MAX_BYTES = 72
+
+
+def _to_bcrypt_bytes(password: str) -> bytes:
+    return password.encode("utf-8")[:_BCRYPT_MAX_BYTES]
 
 
 def validate_password_strength(password: str) -> tuple[bool, str]:
@@ -74,7 +81,10 @@ def create_refresh_token(
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify plain password against hashed password using bcrypt"""
     try:
-        return bool(pwd_context.verify(plain_password, hashed_password))
+        return bcrypt.checkpw(
+            _to_bcrypt_bytes(plain_password),
+            hashed_password.encode("utf-8"),
+        )
     except Exception as e:
         logger.error(f"Password verification error: {e}")
         return False
@@ -82,9 +92,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     """Hash password using bcrypt with cost factor 12 (secure)"""
-    # Bcrypt automatically uses cost factor 12 by default in passlib
-    hashed = pwd_context.hash(password)
-    return cast(str, hashed)
+    hashed = bcrypt.hashpw(_to_bcrypt_bytes(password), bcrypt.gensalt(rounds=12))
+    return hashed.decode("utf-8")
 
 
 def get_user_id_from_token(token: str) -> Optional[int]:

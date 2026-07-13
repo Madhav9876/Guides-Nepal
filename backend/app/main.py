@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from app.core.config import settings
+from app.core.database import Base, engine
+from app import models  # noqa: F401  (registers all models on Base.metadata)
 from app.core.middleware import (
     SecurityHeadersMiddleware,
     RequestLoggingMiddleware,
@@ -67,6 +69,22 @@ except PermissionError:
     logger.warning(f"Could not create uploads directory at {uploads_dir}")
 except Exception as e:
     logger.warning(f"Could not mount uploads directory: {e}")
+
+
+@app.on_event("startup")
+def ensure_database_schema() -> None:
+    """Create database tables if they don't exist yet.
+
+    This guarantees the `users` (and other) tables exist wherever the app can
+    reach the configured database, so registrations actually have somewhere to
+    be stored. Failures are logged (not fatal) so the app still boots and can
+    report a clear error on DB-dependent requests instead of crashing.
+    """
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database schema verified/created successfully.")
+    except Exception as e:  # pragma: no cover - depends on DB availability
+        logger.error(f"Could not create/verify database schema: {e}")
 
 
 @app.get("/")
