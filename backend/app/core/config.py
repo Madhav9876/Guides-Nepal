@@ -44,6 +44,9 @@ class Settings(BaseSettings):
         "http://localhost:5176",
         "http://localhost:4173",
         "http://localhost:3000",
+        # Deployed frontends
+        "https://guides-nepal-nine.vercel.app",
+        "https://guides-nepal-bi2y.vercel.app",
     ]
     
     # Security Headers

@@ -78,7 +78,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitc
       onClose();
       return;
     }
-    const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+    const base = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
     const urls: Record<string, string | undefined> = {
       google: import.meta.env.VITE_GOOGLE_OAUTH_URL || `${base}/auth/oauth/google/start`,
       facebook: import.meta.env.VITE_FACEBOOK_OAUTH_URL || `${base}/auth/oauth/facebook/start`,
@@ -105,7 +105,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitc
 
     setLoading(true);
     try {
-      const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+      const base = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
       const resp = await fetch(`${base}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -133,7 +133,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitc
         }
       }
     } catch {
-      setError('Network error. Please try again.');
+      setError('Cannot reach the server. Make sure the backend is running (npm run dev in /backend or uvicorn on :8000).');
     } finally {
       setLoading(false);
     }

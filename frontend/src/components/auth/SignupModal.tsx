@@ -103,7 +103,7 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
 
     setLoading(true);
     try {
-      const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+      const base = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
       const resp = await fetch(`${base}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -140,7 +140,7 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
         }
       }
     } catch {
-      setError('Network error. Please try again later.');
+      setError('Cannot reach the server. Make sure the backend is running (npm run dev in /backend or uvicorn on :8000).');
     } finally {
       setLoading(false);
     }

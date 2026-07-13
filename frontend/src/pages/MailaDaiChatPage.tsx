@@ -49,7 +49,7 @@ const MailaDaiChatPage: React.FC = () => {
 
     const send = async () => {
       try {
-        const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+        const base = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
         const resp = await fetch(`${base}/ai/chat/stream`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -83,7 +83,7 @@ const MailaDaiChatPage: React.FC = () => {
         }
       } catch {
         try {
-          const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+          const base = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
           const resp2 = await fetch(`${base}/ai/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

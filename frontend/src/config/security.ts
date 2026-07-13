@@ -27,7 +27,7 @@ export const validateEnvironment = () => {
 
 // API Configuration with Security
 export const apiConfig = {
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1'),
   timeout: 30000,
   withCredentials: true,
   headers: {
