@@ -69,6 +69,18 @@ except Exception as e:
     logger.warning(f"Could not mount uploads directory: {e}")
 
 
+@app.get("/")
+def root() -> dict:
+    """Root endpoint - API info"""
+    return {
+        "name": settings.PROJECT_NAME,
+        "status": "running",
+        "api_base": settings.API_V1_STR,
+        "health": "/health",
+        "docs": settings.API_V1_STR + "/docs" if settings.DEBUG else None,
+    }
+
+
 @app.get("/health")
 def health_check() -> dict:
     """Health check endpoint for deployment monitoring"""
