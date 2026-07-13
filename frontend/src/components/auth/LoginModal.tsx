@@ -39,10 +39,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitc
       onClose();
       return;
     }
-    const base = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
     const urls: Record<string, string | undefined> = {
-      google: import.meta.env.VITE_GOOGLE_OAUTH_URL || `${base}/api/v1/auth/oauth/google/start`,
-      facebook: import.meta.env.VITE_FACEBOOK_OAUTH_URL || `${base}/api/v1/auth/oauth/facebook/start`,
+      google: import.meta.env.VITE_GOOGLE_OAUTH_URL || `${base}/auth/oauth/google/start`,
+      facebook: import.meta.env.VITE_FACEBOOK_OAUTH_URL || `${base}/auth/oauth/facebook/start`,
       apple: import.meta.env.VITE_APPLE_OAUTH_URL, // Apple not implemented server-side yet
     };
     const url = urls[provider];
@@ -58,8 +58,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitc
     setError(null);
     setLoading(true);
     try {
-      const base = import.meta.env.VITE_API_URL || '';
-      const resp = await fetch(`${base}/api/v1/auth/login`, {
+      const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+      const resp = await fetch(`${base}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

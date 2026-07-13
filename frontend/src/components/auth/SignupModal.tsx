@@ -14,6 +14,8 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
   const [step, setStep] = useState<'role' | 'form'>('role');
   const [showPassword, setShowPassword] = useState(false);
   const { login, setTokens } = useAuthStore();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -26,17 +28,19 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
     try {
-      const base = import.meta.env.VITE_API_URL || '';
-      const resp = await fetch(`${base}/api/v1/auth/register`, {
+      const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+      const resp = await fetch(`${base}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: formData.email || 'jane@example.com',
-          password: formData.password || 'password123',
-          firstName: formData.firstName || 'Jane',
-          lastName: formData.lastName || 'Doe',
-          phone: formData.phone || '+977-0000000000',
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phone: formData.phone,
           role: 'traveler'
         })
       });
@@ -46,31 +50,28 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
           firstName: data.user.firstName,
           lastName: data.user.lastName,
           email: data.user.email,
-          phone: formData.phone || '+977-0000000000'
+          phone: formData.phone
         });
         setTokens(data.access_token, data.refresh_token);
+        onClose();
+        // Reset state
+        setTimeout(() => {
+          setStep('role');
+          setFormData({ firstName: '', lastName: '', email: '', phone: '', password: '' });
+        }, 300);
       } else {
-        login({
-          firstName: formData.firstName || 'Jane',
-          lastName: formData.lastName || 'Doe',
-          email: formData.email || 'jane@example.com',
-          phone: formData.phone || '+977-0000000000'
-        });
+        try {
+          const errData = await resp.json();
+          setError(errData.detail || 'Registration failed. Please try again.');
+        } catch {
+          setError('Registration failed. Please try again.');
+        }
       }
     } catch {
-      login({
-        firstName: formData.firstName || 'Jane',
-        lastName: formData.lastName || 'Doe',
-        email: formData.email || 'jane@example.com',
-        phone: formData.phone || '+977-0000000000'
-      });
+      setError('Network error. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-    onClose();
-    // Reset state
-    setTimeout(() => {
-      setStep('role');
-      setFormData({ firstName: '', lastName: '', email: '', phone: '', password: '' });
-    }, 300);
   };
 
   const handleGuideSelect = () => {
@@ -259,6 +260,10 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
                   </button>
                 </div>
 
+                {error && (
+                  <div className="text-red-600 text-sm text-center">{error}</div>
+                )}
+
                 <div className="text-center text-xs text-gray-500 px-4">
                   When using Guides-Nepal you accept our{' '}
                   <a href="#" className="text-[#213448] font-bold hover:text-brand-yellow hover:underline transition-colors">Terms & Conditions</a>
@@ -266,8 +271,8 @@ export const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwi
                   <a href="#" className="text-[#213448] font-bold hover:text-brand-yellow hover:underline transition-colors">Privacy Policy</a>.
                 </div>
 
-                <button type="submit" className="w-full bg-brand-yellow hover:bg-[#E5A800] text-[#213448] font-bold py-3.5 rounded-full transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-                  Sign up
+                <button type="submit" disabled={loading} className="w-full bg-brand-yellow hover:bg-[#E5A800] text-[#213448] font-bold py-3.5 rounded-full transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60">
+                  {loading ? 'Signing up…' : 'Sign up'}
                 </button>
               </form>
 

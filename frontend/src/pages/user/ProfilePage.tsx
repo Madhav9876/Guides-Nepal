@@ -20,7 +20,7 @@ const ProfilePage: React.FC = () => {
     phone: profile.phone || user?.phone || '',
     bio: profile.bio || ''
   });
-  const API_BASE = `${import.meta.env.VITE_API_URL || ''}/api/v1/profile`;
+  const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/profile`;
 
   const upcoming = bookings.filter((b) => b.status === 'upcoming');
   const past = bookings.filter((b) => b.status !== 'upcoming');

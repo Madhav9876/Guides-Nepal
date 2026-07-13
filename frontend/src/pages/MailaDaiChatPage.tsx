@@ -49,8 +49,8 @@ const MailaDaiChatPage: React.FC = () => {
 
     const send = async () => {
       try {
-        const base = import.meta.env.VITE_API_URL || '';
-        const resp = await fetch(`${base}/api/v1/ai/chat/stream`, {
+        const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+        const resp = await fetch(`${base}/ai/chat/stream`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -83,8 +83,8 @@ const MailaDaiChatPage: React.FC = () => {
         }
       } catch {
         try {
-          const base = import.meta.env.VITE_API_URL || '';
-          const resp2 = await fetch(`${base}/api/v1/ai/chat`, {
+          const base = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+          const resp2 = await fetch(`${base}/ai/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
