@@ -13,7 +13,7 @@
 ### 1. Create Accounts
 - Vercel account: https://vercel.com
 - Render account: https://render.com
-- Supabase project (already created): https://wuyxvqkokyhjbfzemjyw.supabase.co
+- Supabase project (already created): https://YOUR_PROJECT_REF.supabase.co
 
 ### 2. Connect GitHub
 - Push your project to GitHub repository
@@ -36,8 +36,8 @@
 
 5. Under **Environment Variables**, add:
    ```
-   VITE_SUPABASE_URL = https://wuyxvqkokyhjbfzemjyw.supabase.co
-   VITE_SUPABASE_PUBLISHABLE_KEY = sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL
+   VITE_SUPABASE_URL = https://YOUR_PROJECT_REF.supabase.co
+   VITE_SUPABASE_PUBLISHABLE_KEY = <SUPABASE_PUBLISHABLE_KEY>
    ```
 
 6. Click **Deploy**
@@ -61,8 +61,8 @@
 
 5. Under **Environment Variables**, add:
    ```
-   VITE_SUPABASE_URL = https://wuyxvqkokyhjbfzemjyw.supabase.co
-   VITE_SUPABASE_PUBLISHABLE_KEY = sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL
+   VITE_SUPABASE_URL = https://YOUR_PROJECT_REF.supabase.co
+   VITE_SUPABASE_PUBLISHABLE_KEY = <SUPABASE_PUBLISHABLE_KEY>
    ```
 
 6. Click **Deploy**
@@ -98,7 +98,7 @@ After deployment, go to your backend service settings and verify/update:
 
 1. **DATABASE_URL**: 
    ```
-   postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+   postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
    ```
 
 2. **BACKEND_CORS_ORIGINS** (update with your actual Vercel URLs):
@@ -112,12 +112,12 @@ After deployment, go to your backend service settings and verify/update:
 
 5. **VITE_SUPABASE_URL**:
    ```
-   https://wuyxvqkokyhjbfzemjyw.supabase.co
+   https://YOUR_PROJECT_REF.supabase.co
    ```
 
 6. **VITE_SUPABASE_PUBLISHABLE_KEY**:
    ```
-   sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL
+   <SUPABASE_PUBLISHABLE_KEY>
    ```
 
 7. **OPENAI_API_KEY** (optional): Add if you use OpenAI

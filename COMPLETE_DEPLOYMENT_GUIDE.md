@@ -93,14 +93,14 @@ Check these critical files:
      - name: guides-nepal-backend
        envVars:
          - key: DATABASE_URL
-           value: postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+           value: postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
    ```
 
 3. If DATABASE_URL shows `***`:
    - Click **"Edit"**
    - Paste correct value:
      ```
-     postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+     postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
      ```
    - **IMPORTANT**: `@` in password must be `%40`
 
@@ -167,8 +167,8 @@ curl https://guides-nepal-backend.onrender.com/health
 
 | Key | Value |
 |-----|-------|
-| VITE_SUPABASE_URL | https://wuyxvqkokyhjbfzemjyw.supabase.co |
-| VITE_SUPABASE_PUBLISHABLE_KEY | sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL |
+| VITE_SUPABASE_URL | https://YOUR_PROJECT_REF.supabase.co |
+| VITE_SUPABASE_PUBLISHABLE_KEY | <SUPABASE_PUBLISHABLE_KEY> |
 | VITE_API_URL | https://guides-nepal-backend.onrender.com |
 
 3. Fill in each and click **"Add"**
@@ -212,8 +212,8 @@ Same as frontend:
 
 | Key | Value |
 |-----|-------|
-| VITE_SUPABASE_URL | https://wuyxvqkokyhjbfzemjyw.supabase.co |
-| VITE_SUPABASE_PUBLISHABLE_KEY | sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL |
+| VITE_SUPABASE_URL | https://YOUR_PROJECT_REF.supabase.co |
+| VITE_SUPABASE_PUBLISHABLE_KEY | <SUPABASE_PUBLISHABLE_KEY> |
 | VITE_API_URL | https://guides-nepal-backend.onrender.com |
 
 ### Step 4.4: Deploy
@@ -339,7 +339,7 @@ access-control-allow-credentials: true
 1. Check DATABASE_URL format
 2. Test locally first:
    ```bash
-   export DATABASE_URL="postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres"
+   export DATABASE_URL="postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co:5432/postgres"
    python -c "from sqlalchemy import create_engine; engine = create_engine('$DATABASE_URL'); print('✅ Connected')"
    ```
 3. If fails, check password and URL format

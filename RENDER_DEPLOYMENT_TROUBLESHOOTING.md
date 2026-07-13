@@ -78,14 +78,14 @@ ERROR: FATAL: database "postgres" does not exist
 
 **Wrong formats:**
 ```
-❌ postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co...
-❌ postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co...
+❌ postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co...
+❌ postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co...
 ❌ DB_URL=postgresql://... (wrong variable name)
 ```
 
 **Correct format:**
 ```
-✅ DATABASE_URL=postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+✅ DATABASE_URL=postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
 ```
 
 **Key points:**
@@ -102,7 +102,7 @@ ERROR: FATAL: database "postgres" does not exist
 4. Find **DATABASE_URL**
 5. Edit value to:
    ```
-   postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+   postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
    ```
 6. Save
 7. Render will auto-redeploy
@@ -112,7 +112,7 @@ ERROR: FATAL: database "postgres" does not exist
 Test locally first:
 ```bash
 # Set environment variable
-export DATABASE_URL="postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres"
+export DATABASE_URL="postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co:5432/postgres"
 
 # Test connection
 python -c "from sqlalchemy import create_engine; engine = create_engine('$DATABASE_URL'); print('✅ Connected!')" 2>&1

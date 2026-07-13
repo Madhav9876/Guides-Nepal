@@ -87,12 +87,12 @@ After clicking "Create Service", you'll see environment variables:
 Add these (if not already in render.yaml):
 
 ```
-DATABASE_URL = postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+DATABASE_URL = postgresql://postgres:<SUPABASE_DB_PASSWORD>@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
 ENV = production
 SECRET_KEY = (leave empty - Render will generate)
 BACKEND_CORS_ORIGINS = https://guides-nepal-frontend.vercel.app,https://guides-nepal-dashboard.vercel.app
-VITE_SUPABASE_URL = https://wuyxvqkokyhjbfzemjyw.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY = sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL
+VITE_SUPABASE_URL = https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY = <SUPABASE_PUBLISHABLE_KEY>
 ```
 
 **IMPORTANT**: DATABASE_URL must use `%40` for the @ symbol (NOT `@`)

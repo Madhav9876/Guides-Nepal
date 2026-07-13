@@ -13,11 +13,11 @@ SECRET_KEY=GENERATE_STRONG_KEY_AND_SET_HERE_DO_NOT_USE_DEFAULT
 
 # Database Connection (Supabase PostgreSQL)
 # Format: postgresql://username:password@host:port/database
-DB_URL=postgresql://postgres:YOUR_STRONG_PASSWORD@db.wuyxvqkokyhjbfzemjyw.supabase.co:5432/postgres
+DB_URL=postgresql://postgres:YOUR_STRONG_PASSWORD@db.YOUR_PROJECT_REF.supabase.co:5432/postgres
 
 # Supabase Configuration
-VITE_SUPABASE_URL=https://wuyxvqkokyhjbfzemjyw.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<SUPABASE_PUBLISHABLE_KEY>
 
 # CORS Origins (comma-separated, MUST be HTTPS in production)
 # Replace with your actual Vercel deployment URLs
@@ -56,8 +56,8 @@ ENABLE_REQUEST_LOGGING=true
 # ============================================================
 
 # Supabase Configuration (MUST be accessible from frontend)
-VITE_SUPABASE_URL=https://wuyxvqkokyhjbfzemjyw.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<SUPABASE_PUBLISHABLE_KEY>
 
 # Backend API URL (production deployment URL)
 VITE_API_URL=https://guides-nepal-backend.onrender.com/api/v1
@@ -67,8 +67,8 @@ VITE_API_URL=https://guides-nepal-backend.onrender.com/api/v1
 # ============================================================
 
 # Same as Frontend
-VITE_SUPABASE_URL=https://wuyxvqkokyhjbfzemjyw.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<SUPABASE_PUBLISHABLE_KEY>
 VITE_API_URL=https://guides-nepal-backend.onrender.com/api/v1
 
 

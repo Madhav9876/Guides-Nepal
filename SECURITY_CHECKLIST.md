@@ -77,7 +77,7 @@
   - All API calls use https://
 
 - [ ] **Environment Variables** - Set in Vercel dashboard
-  - VITE_SUPABASE_URL: https://wuyxvqkokyhjbfzemjyw.supabase.co
+  - VITE_SUPABASE_URL: https://YOUR_PROJECT_REF.supabase.co
   - VITE_SUPABASE_PUBLISHABLE_KEY: (your key)
   - VITE_API_URL: https://guides-nepal-backend.onrender.com/api/v1
   - NO secrets in these (publishable key only)
@@ -282,7 +282,7 @@ du -sh dist/
 ### Database
 ```bash
 # Test connection (from anywhere except production)
-psql -h db.wuyxvqkokyhjbfzemjyw.supabase.co -U postgres -d postgres
+psql -h db.YOUR_PROJECT_REF.supabase.co -U postgres -d postgres
 
 # (Will require password - this proves password works)
 ```

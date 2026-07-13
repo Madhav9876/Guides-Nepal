@@ -123,13 +123,13 @@ ENV=production
 DB_URL=postgresql://... (Supabase connection)
 SECRET_KEY=<MUST_GENERATE_NEW>
 BACKEND_CORS_ORIGINS=https://frontend.vercel.app,https://dashboard.vercel.app
-VITE_SUPABASE_URL=https://wuyxvqkokyhjbfzemjyw.supabase.co
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 ```
 
 **Frontend/Dashboard (.env.local):**
 ```
-VITE_SUPABASE_URL=https://wuyxvqkokyhjbfzemjyw.supabase.co
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 VITE_API_URL=https://guides-nepal-backend.onrender.com/api/v1
 ```

@@ -23,8 +23,8 @@ Security: Enabled ✅
 Follow: VERCEL_DEPLOYMENT_GUIDE.md - PART 1
 
 **Environment Variables to Set:**
-- VITE_SUPABASE_URL = `https://wuyxvqkokyhjbfzemjyw.supabase.co`
-- VITE_SUPABASE_PUBLISHABLE_KEY = `sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL`
+- VITE_SUPABASE_URL = `https://YOUR_PROJECT_REF.supabase.co`
+- VITE_SUPABASE_PUBLISHABLE_KEY = `<SUPABASE_PUBLISHABLE_KEY>`
 - VITE_API_URL = `https://guides-nepal.onrender.com`
 
 ⏱️ **Time:** 5-10 minutes
@@ -37,8 +37,8 @@ Follow: VERCEL_DEPLOYMENT_GUIDE.md - PART 1
 Follow: VERCEL_DEPLOYMENT_GUIDE.md - PART 2
 
 **Environment Variables to Set:**
-- VITE_SUPABASE_URL = `https://wuyxvqkokyhjbfzemjyw.supabase.co`
-- VITE_SUPABASE_PUBLISHABLE_KEY = `sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL`
+- VITE_SUPABASE_URL = `https://YOUR_PROJECT_REF.supabase.co`
+- VITE_SUPABASE_PUBLISHABLE_KEY = `<SUPABASE_PUBLISHABLE_KEY>`
 - VITE_API_URL = `https://guides-nepal.onrender.com`
 
 ⏱️ **Time:** 5-10 minutes

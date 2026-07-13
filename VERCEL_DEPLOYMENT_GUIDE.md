@@ -50,8 +50,8 @@ Click on "frontend" folder
 
 | Name | Value |
 |------|-------|
-| VITE_SUPABASE_URL | https://wuyxvqkokyhjbfzemjyw.supabase.co |
-| VITE_SUPABASE_PUBLISHABLE_KEY | sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL |
+| VITE_SUPABASE_URL | https://YOUR_PROJECT_REF.supabase.co |
+| VITE_SUPABASE_PUBLISHABLE_KEY | <SUPABASE_PUBLISHABLE_KEY> |
 | VITE_API_URL | https://guides-nepal.onrender.com |
 
 For each variable:
@@ -111,8 +111,8 @@ Same as frontend:
 
 | Name | Value |
 |------|-------|
-| VITE_SUPABASE_URL | https://wuyxvqkokyhjbfzemjyw.supabase.co |
-| VITE_SUPABASE_PUBLISHABLE_KEY | sb_publishable_CSVybNBa1ZK_mqg-5Gr3DA_-wmXhfrL |
+| VITE_SUPABASE_URL | https://YOUR_PROJECT_REF.supabase.co |
+| VITE_SUPABASE_PUBLISHABLE_KEY | <SUPABASE_PUBLISHABLE_KEY> |
 | VITE_API_URL | https://guides-nepal.onrender.com |
 
 ### Step 2.5: Deploy
