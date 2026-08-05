@@ -79,6 +79,10 @@ def login(login_data: UserLogin, db: Session = Depends(get_db)) -> dict:
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    # Ensure the user also exists in Supabase Auth so the forgot-password
+    # flow (which uses Supabase's resetPasswordForEmail) can find them.
+    # This handles users who registered before Supabase sync was added.
+    auth_service.ensure_supabase_user(user.email, login_data.password)
     return auth_service.create_tokens(user)
 
 

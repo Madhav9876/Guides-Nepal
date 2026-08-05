@@ -1,4 +1,7 @@
 from typing import Optional
+import secrets
+import logging
+import httpx
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.auth import UserCreate
@@ -9,7 +12,9 @@ from app.core.security import (
     create_refresh_token,
     validate_password_strength,
 )
-import secrets
+from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class AuthService:
@@ -18,6 +23,92 @@ class AuthService:
 
     def get_user_by_email(self, email: str) -> Optional[User]:
         return self.db.query(User).filter(User.email == email).first()
+
+    def _create_supabase_user(self, email: str, password: str) -> None:
+        """Create a user in Supabase Auth via the Admin API.
+
+        This keeps the backend DB and Supabase Auth in sync so that the
+        forgot-password flow (which uses Supabase's resetPasswordForEmail)
+        can find the user and send a reset link.
+
+        If Supabase is not configured, we log a warning and continue — the
+        backend login still works, but password reset via email will not.
+        """
+        if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
+            logger.warning(
+                "Supabase not configured; skipping Supabase Auth user creation for %s",
+                email,
+            )
+            return
+
+        headers = {
+            "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
+            "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "email": email,
+            "password": password,
+            "email_confirm": True,  # auto-confirm so the user can log in immediately
+        }
+        try:
+            resp = httpx.post(
+                f"{settings.SUPABASE_URL}/auth/v1/admin/users",
+                headers=headers,
+                json=payload,
+                timeout=10.0,
+            )
+            if resp.status_code in (200, 201):
+                logger.info("Created Supabase Auth user for %s", email)
+            elif resp.status_code == 409:
+                # User already exists in Supabase — that's fine, nothing to do.
+                logger.info("Supabase Auth user already exists for %s", email)
+            else:
+                logger.warning(
+                    "Supabase Auth user creation failed for %s: %s %s",
+                    email,
+                    resp.status_code,
+                    resp.text,
+                )
+        except httpx.HTTPError as e:
+            logger.warning("Supabase Auth user creation error for %s: %s", email, e)
+
+    def ensure_supabase_user(self, email: str, password: str) -> None:
+        """Ensure a user exists in Supabase Auth.
+
+        This is called on login for users who registered before Supabase
+        sync was added, so the forgot-password flow can find them. If the
+        user already exists in Supabase, this is a no-op.
+        """
+        if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
+            logger.warning(
+                "Supabase not configured; skipping Supabase Auth sync for %s",
+                email,
+            )
+            return
+
+        headers = {
+            "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
+            "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
+        }
+        try:
+            # Check if the user already exists in Supabase
+            resp = httpx.get(
+                f"{settings.SUPABASE_URL}/auth/v1/admin/users",
+                params={"email": email},
+                headers=headers,
+                timeout=10.0,
+            )
+            if resp.status_code == 200:
+                users = resp.json().get("users", [])
+                if users:
+                    # User already exists in Supabase — nothing to do.
+                    logger.info("Supabase Auth user already exists for %s", email)
+                    return
+            # User does not exist — create them.
+            self._create_supabase_user(email, password)
+        except httpx.HTTPError as e:
+            logger.warning("Supabase Auth sync error for %s: %s", email, e)
 
     def register_user(self, user_in: UserCreate) -> User:
         if self.get_user_by_email(user_in.email):
@@ -38,6 +129,10 @@ class AuthService:
         self.db.add(db_user)
         self.db.commit()
         self.db.refresh(db_user)
+
+        # Keep Supabase Auth in sync so the forgot-password flow works.
+        self._create_supabase_user(user_in.email, user_in.password)
+
         return db_user
 
     def authenticate_user(self, email: str, password: str) -> Optional[User]:
