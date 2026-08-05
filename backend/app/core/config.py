@@ -104,6 +104,10 @@ class Settings(BaseSettings):
     FACEBOOK_REDIRECT_URI: str | None = os.getenv("FACEBOOK_REDIRECT_URI")
     FRONTEND_OAUTH_REDIRECT: str | None = os.getenv("FRONTEND_OAUTH_REDIRECT")
 
+    # Supabase (used for password reset email verification on the backend)
+    SUPABASE_URL: str | None = os.getenv('SUPABASE_URL')
+    SUPABASE_SERVICE_ROLE_KEY: str | None = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+
     # Logging & Monitoring
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO" if not DEBUG else "DEBUG")
     ENABLE_REQUEST_LOGGING: bool = True

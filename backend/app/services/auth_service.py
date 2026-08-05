@@ -87,3 +87,19 @@ class AuthService:
         self.db.commit()
         self.db.refresh(db_user)
         return db_user
+
+    def update_user_password(self, user: User, new_password: str) -> User:
+        """Update a user's password after validating strength.
+
+        SECURITY: This method does NOT reveal whether the user exists. The
+        caller is responsible for ensuring the caller is authorized (e.g.
+        via a verified Supabase access token) before calling this method.
+        """
+        is_valid, error_message = validate_password_strength(new_password)
+        if not is_valid:
+            raise ValueError(error_message)
+
+        setattr(user, "hashed_password", get_password_hash(new_password))
+        self.db.commit()
+        self.db.refresh(user)
+        return user

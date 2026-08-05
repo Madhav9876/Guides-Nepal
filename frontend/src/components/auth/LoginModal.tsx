@@ -6,9 +6,10 @@ interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToSignup: () => void;
+  onSwitchToForgotPassword: () => void;
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSignup }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSignup, onSwitchToForgotPassword }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [userType, setUserType] = useState<'traveler' | 'guide'>('traveler');
   const { login, setTokens, setRememberMe } = useAuthStore();
@@ -280,7 +281,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitc
             </label>
 
             <div className="flex justify-start">
-              <button type="button" className="text-[#213448] font-bold text-sm hover:text-brand-yellow transition-colors hover:underline">
+              <button type="button" onClick={onSwitchToForgotPassword} className="text-[#213448] font-bold text-sm hover:text-brand-yellow transition-colors hover:underline">
                 Forgot your password?
               </button>
             </div>
