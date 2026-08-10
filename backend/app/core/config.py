@@ -15,6 +15,19 @@ load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 _ENV = os.getenv("ENV", "development")
 _DEBUG = _ENV == "development"
 
+# Default CORS origins (comma-separated string). Used when the
+# BACKEND_CORS_ORIGINS env var is NOT set (e.g. local development).
+_DEFAULT_CORS_ORIGINS = ",".join([
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "http://localhost:5176",
+    "http://localhost:4173",
+    "http://localhost:3000",
+    "https://guides-nepal-nine.vercel.app",
+    "https://guides-nepal-bi2y.vercel.app",
+])
+
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Guides-Nepal Backend"
@@ -71,6 +84,22 @@ class Settings(BaseSettings):
         "postgresql://postgres:postgres@localhost:5432/guides_nepal"
     )
 
+    # CORS - Comma-separated list of allowed origins.
+    # Declared as `str` (NOT List[str]) on purpose: pydantic-settings would try
+    # to JSON-parse a List[str] field, which breaks the comma-separated env var
+    # format used by BACKEND_CORS_ORIGINS on Render. Use the `cors_origins`
+    # property below for the parsed list.
+    BACKEND_CORS_ORIGINS: str = _DEFAULT_CORS_ORIGINS
+
+    @property
+    def cors_origins(self) -> List[str]:
+        """Parsed list of allowed CORS origins."""
+        return [
+            o.strip()
+            for o in self.BACKEND_CORS_ORIGINS.split(",")
+            if o.strip()
+        ]
+
     # AI Services
     OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY")
     AI_MODEL: str = os.getenv("AI_MODEL", "gpt-4o-mini")
@@ -105,27 +134,8 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Parse CORS origins from environment (handled here, not in Settings class)
-# to avoid pydantic auto-parsing the comma-separated string as JSON
-_cors_env = os.getenv("BACKEND_CORS_ORIGINS")
-if _cors_env:
-    settings.BACKEND_CORS_ORIGINS = [
-        o.strip() for o in _cors_env.split(",") if o.strip()
-    ]
-else:
-    settings.BACKEND_CORS_ORIGINS = [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:5175",
-        "http://localhost:5176",
-        "http://localhost:4173",
-        "http://localhost:3000",
-        "https://guides-nepal-nine.vercel.app",
-        "https://guides-nepal-bi2y.vercel.app",
-    ]
-
 # Validate HTTPS in production
 if settings.ENV == "production":
-    for origin in settings.BACKEND_CORS_ORIGINS:
+    for origin in settings.cors_origins:
         if origin.startswith("http://") and not origin.startswith("http://localhost"):
             raise ValueError(f"⚠️  SECURITY WARNING: Non-HTTPS origin in production: {origin}")

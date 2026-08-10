@@ -32,7 +32,7 @@ app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 
 # Configure CORS with strict settings
-cors_origins = settings.BACKEND_CORS_ORIGINS
+cors_origins = settings.cors_origins
 logger.info(f"Configured CORS origins: {cors_origins}")
 
 if cors_origins:
