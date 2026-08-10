@@ -36,19 +36,6 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
-    # CORS - Restrict to specific origins only
-    BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:5175",
-        "http://localhost:5176",
-        "http://localhost:4173",
-        "http://localhost:3000",
-        # Deployed frontends
-        "https://guides-nepal-nine.vercel.app",
-        "https://guides-nepal-bi2y.vercel.app",
-    ]
-    
     # Security Headers
     SECURE_HEADERS: dict = {
         "X-Content-Type-Options": "nosniff",
@@ -116,13 +103,17 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 
-# Parse CORS origins from environment BEFORE initializing settings
-# This avoids pydantic trying to parse comma-separated string as JSON
+settings = Settings()
+
+# Parse CORS origins from environment (handled here, not in Settings class)
+# to avoid pydantic auto-parsing the comma-separated string as JSON
 _cors_env = os.getenv("BACKEND_CORS_ORIGINS")
 if _cors_env:
-    _cors_list = [o.strip() for o in _cors_env.split(",") if o.strip()]
+    settings.BACKEND_CORS_ORIGINS = [
+        o.strip() for o in _cors_env.split(",") if o.strip()
+    ]
 else:
-    _cors_list = [
+    settings.BACKEND_CORS_ORIGINS = [
         "http://localhost:5173",
         "http://localhost:5174",
         "http://localhost:5175",
@@ -133,11 +124,8 @@ else:
         "https://guides-nepal-bi2y.vercel.app",
     ]
 
-settings = Settings(BACKEND_CORS_ORIGINS=_cors_list)
-
 # Validate HTTPS in production
 if settings.ENV == "production":
     for origin in settings.BACKEND_CORS_ORIGINS:
         if origin.startswith("http://") and not origin.startswith("http://localhost"):
             raise ValueError(f"⚠️  SECURITY WARNING: Non-HTTPS origin in production: {origin}")
-
