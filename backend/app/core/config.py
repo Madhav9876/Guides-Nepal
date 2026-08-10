@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
-from pydantic import field_validator
 from typing import List
 
 # Load environment variables from backend/.env so DATABASE_URL, SECRET_KEY, etc.
@@ -49,13 +48,6 @@ class Settings(BaseSettings):
         "https://guides-nepal-nine.vercel.app",
         "https://guides-nepal-bi2y.vercel.app",
     ]
-
-    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, v):
-        if isinstance(v, str):
-            return [o.strip() for o in v.split(",") if o.strip()]
-        return v
     
     # Security Headers
     SECURE_HEADERS: dict = {
@@ -124,7 +116,24 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 
-settings = Settings()
+# Parse CORS origins from environment BEFORE initializing settings
+# This avoids pydantic trying to parse comma-separated string as JSON
+_cors_env = os.getenv("BACKEND_CORS_ORIGINS")
+if _cors_env:
+    _cors_list = [o.strip() for o in _cors_env.split(",") if o.strip()]
+else:
+    _cors_list = [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:4173",
+        "http://localhost:3000",
+        "https://guides-nepal-nine.vercel.app",
+        "https://guides-nepal-bi2y.vercel.app",
+    ]
+
+settings = Settings(BACKEND_CORS_ORIGINS=_cors_list)
 
 # Validate HTTPS in production
 if settings.ENV == "production":
