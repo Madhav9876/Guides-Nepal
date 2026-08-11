@@ -108,21 +108,24 @@ def forgot_password(
     # Try to send reset email via Supabase Admin API if configured
     if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY:
         try:
-            # Use Supabase Admin API to send reset email
-            # This works even if the user doesn't exist - Supabase will just
-            # return success without sending an email
+            # Use Supabase Admin API `generate_link` with type=recovery. This is
+            # the correct endpoint that actually sends a password-reset email to
+            # the registered address. (The old code hit /auth/v1/admin/otp, which
+            # does not send reset emails, so nothing was ever delivered.)
             headers = {
                 "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
                 "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
                 "Content-Type": "application/json",
             }
             payload = {
+                "type": "recovery",
                 "email": email,
-                "create_session": True,
             }
+            if settings.RESET_PASSWORD_REDIRECT_URL:
+                payload["redirect_to"] = settings.RESET_PASSWORD_REDIRECT_URL
 
             resp = httpx.post(
-                f"{settings.SUPABASE_URL}/auth/v1/admin/otp",
+                f"{settings.SUPABASE_URL}/auth/v1/admin/generate_link",
                 headers=headers,
                 json=payload,
                 timeout=10.0,

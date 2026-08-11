@@ -128,6 +128,9 @@ class Settings(BaseSettings):
     # Supabase (used for password reset email verification on the backend)
     SUPABASE_URL: str | None = os.getenv("SUPABASE_URL")
     SUPABASE_SERVICE_ROLE_KEY: str | None = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    # Where the reset link in the email should land the user. This must be a
+    # URL allowed in the Supabase project's "Redirect URLs" config.
+    RESET_PASSWORD_REDIRECT_URL: str | None = os.getenv("RESET_PASSWORD_REDIRECT_URL")
 
     # Logging & Monitoring
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO" if not DEBUG else "DEBUG")
