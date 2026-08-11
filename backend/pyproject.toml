@@ -1,0 +1,11 @@
+[tool.ruff]
+extend-exclude = [
+    "test_password_reset.py",
+    "verify_auth.py",
+    ".venv",
+]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+exclude = "test_password_reset|verify_auth"

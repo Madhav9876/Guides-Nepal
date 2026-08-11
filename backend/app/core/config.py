@@ -133,7 +133,7 @@ class Settings(BaseSettings):
     RESET_PASSWORD_REDIRECT_URL: str | None = os.getenv("RESET_PASSWORD_REDIRECT_URL")
 
     # Logging & Monitoring
-    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO" if not DEBUG else "DEBUG")
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO" if not _DEBUG else "DEBUG")
     ENABLE_REQUEST_LOGGING: bool = True
 
     class Config:

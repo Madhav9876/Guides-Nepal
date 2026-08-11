@@ -53,9 +53,10 @@ try:
     # Test 3: Check Supabase connection (list users)
     import httpx
 
-    headers = {
-        "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
-        "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
+    service_key = str(settings.SUPABASE_SERVICE_ROLE_KEY)
+    headers: dict[str, str] = {
+        "Authorization": f"Bearer {service_key}",
+        "apikey": service_key,
     }
 
     print(f"\nTest 3: Supabase Admin API connectivity")

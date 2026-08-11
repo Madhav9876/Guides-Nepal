@@ -18,10 +18,10 @@ Base.metadata.create_all(bind=engine)
 BASE = "/api/v1/auth"
 client = TestClient(app)
 
-results = []
+results: list[tuple[str, bool]] = []
 
 
-def check(name, condition):
+def check(name: str, condition: bool) -> None:
     results.append((name, condition))
     print(f"[{'PASS' if condition else 'FAIL'}] {name}")
 

@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
@@ -112,7 +112,7 @@ def api_health_check() -> dict:
 
 
 @app.exception_handler(Exception)
-async def general_exception_handler(request, exc):
+async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Global exception handler to prevent information leakage"""
     logger.error(f"Unhandled exception: {exc}")
     if settings.DEBUG:

@@ -18,7 +18,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security headers to all responses"""
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
-        response = await call_next(request)
+        response: Response = await call_next(request)
 
         # Add security headers
         response.headers["X-Content-Type-Options"] = "nosniff"
@@ -53,7 +53,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         if not settings.ENABLE_REQUEST_LOGGING:
-            return await call_next(request)
+            return await call_next(request)  # type: ignore[no-any-return]
 
         start_time = time.time()
 
@@ -67,7 +67,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         )
 
         try:
-            response = await call_next(request)
+            response: Response = await call_next(request)
             process_time = time.time() - start_time
 
             # Log response
@@ -98,7 +98,7 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
             )
             return JSONResponse(status_code=400, content={"detail": "Invalid request"})
 
-        return await call_next(request)
+        return await call_next(request)  # type: ignore[no-any-return]
 
     @staticmethod
     def _is_suspicious_request(request: Request) -> bool:
@@ -149,4 +149,4 @@ class HTTPSEnforcementMiddleware(BaseHTTPMiddleware):
                     status_code=403, content={"detail": "HTTPS required"}
                 )
 
-        return await call_next(request)
+        return await call_next(request)  # type: ignore[no-any-return]

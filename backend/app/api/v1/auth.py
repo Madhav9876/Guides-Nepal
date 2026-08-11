@@ -10,16 +10,15 @@ from app.schemas.auth import (
     SyncPasswordRequest,
 )
 from app.services.auth_service import AuthService
-from app.core.config import settings
+from app.core.config import settings, Settings
 import httpx
 import urllib.parse
 import logging
-from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
 
-def _ensure_supabase_user_exists(email: str, settings) -> None:
+def _ensure_supabase_user_exists(email: str, settings: "Settings") -> None:
     """Create the user in Supabase Auth (if missing) so a recovery email can be sent.
 
     Our app keeps the source of truth in its own Postgres DB and only mirrors
@@ -141,7 +140,7 @@ def login(login_data: UserLogin, db: Session = Depends(get_db)) -> dict:
     # Ensure the user also exists in Supabase Auth so the forgot-password
     # flow (which uses Supabase's resetPasswordForEmail) can find them.
     # This handles users who registered before Supabase sync was added.
-    auth_service.ensure_supabase_user(user.email, login_data.password)
+    auth_service.ensure_supabase_user(str(user.email), login_data.password)
     return auth_service.create_tokens(user)
 
 
