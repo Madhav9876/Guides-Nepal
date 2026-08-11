@@ -124,8 +124,9 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
         if "../" in path or "..\\" in path or "%2e%2e" in path:
             return True
 
-        # Command injection
-        dangerous_chars = [";", "|", "&", "`", "$", "$(", "{$("]
+        # Command injection - only check path, not query string
+        # Query strings legitimately contain & and ; (e.g., OAuth callbacks)
+        dangerous_chars = ["`", "$", "$(", "{$("]
         if any(char in path for char in dangerous_chars):
             return True
 
