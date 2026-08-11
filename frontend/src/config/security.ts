@@ -1,4 +1,4 @@
-e/**
+/**
  * Frontend Security Configuration
  * Implements security best practices for React app
  */
