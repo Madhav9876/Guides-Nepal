@@ -21,3 +21,7 @@ services:
         sync: false
       - key: BACKEND_CORS_ORIGINS
         value: https://guides-nepal-frontend.vercel.app,https://guides-nepal-dashboard.vercel.app
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
