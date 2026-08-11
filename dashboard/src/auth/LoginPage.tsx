@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom"
 import { login } from "../services/api"
 import { normalizeRole } from "../utils/roles"
 import { useAuthStore } from "../state/authStore"
+import ForgotPasswordModal from "./ForgotPasswordModal"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [remember, setRemember] = useState(true)
   const [selectRole, setSelectRole] = useState<"admin" | "host" | "guide" | "content-writer">("admin")
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
   const { token, role, setToken, setRole, setUser, setError, setLoading, error } = useAuthStore()
   const navigate = useNavigate()
 
@@ -111,6 +113,15 @@ export default function LoginPage() {
           <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
           Remember me
         </label>
+        <div className="text-center text-sm text-gray-600">
+          <button
+            type="button"
+            onClick={() => setShowForgotPassword(true)}
+            className="text-[#213448] font-semibold hover:text-brand-yellow transition-colors hover:underline"
+          >
+            Forgot your password?
+          </button>
+        </div>
         <button
           type="submit"
           className="w-full rounded-lg bg-brand-yellow text-darkBlue font-semibold py-2 hover:opacity-90"
@@ -118,6 +129,11 @@ export default function LoginPage() {
           Login
         </button>
       </form>
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        onSwitchToLogin={() => setShowForgotPassword(false)}
+      />
     </div>
   )
 }
