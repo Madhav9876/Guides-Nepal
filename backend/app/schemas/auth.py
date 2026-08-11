@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
 
@@ -21,10 +21,12 @@ class UserLogin(BaseModel):
 
 class UserResponse(UserBase):
     id: int
-    isActive: bool = True
+    isActive: bool = Field(default=True, alias="is_active")
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True,
+        "populate_by_name": True,
+    }
 
 
 class Token(BaseModel):

@@ -64,8 +64,10 @@ export default function LoginPage() {
           localStorage.setItem("gn_user", JSON.stringify({ ...me, role: normalized }))
         } catch {}
       }
-    } catch {
-      setError("Login failed")
+    } catch (err: any) {
+      // Show the actual error from the API when available
+      const detail = err?.response?.data?.detail
+      setError(detail || "Login failed. Please check your credentials.")
     } finally {
       setLoading(false)
     }

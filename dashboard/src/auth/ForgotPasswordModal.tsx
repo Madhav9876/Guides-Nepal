@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { getApiUrl } from "../config/api"
 
 interface ForgotPasswordModalProps {
   isOpen: boolean
@@ -47,8 +48,7 @@ export default function ForgotPasswordModal({ isOpen, onClose, onSwitchToLogin }
     setErrorMessage(null)
 
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://localhost:8000/api/v1" : "https://guides-nepal.onrender.com/api/v1")
-      const resp = await fetch(`${apiBase}/auth/forgot-password`, {
+      const resp = await fetch(getApiUrl("/auth/forgot-password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

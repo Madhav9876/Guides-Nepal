@@ -6,7 +6,7 @@ from typing import List
 
 # Load environment variables from backend/.env so DATABASE_URL, SECRET_KEY, etc.
 # are available via os.getenv below. Without this, the app silently falls back to
-# the local Postgres default and never connects to the configured database.
+# the local Postgres default and never connects to the configured database.i need to change 
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 # Derive environment flags as plain module constants so they are NOT treated as

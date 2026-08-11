@@ -1,8 +1,9 @@
 import axios from "axios"
 import { useAuthStore } from "../state/authStore"
+import { API_BASE_URL } from "../config/api"
 
 export const http = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://localhost:8000/api/v1" : "https://guides-nepal.onrender.com/api/v1"),
+  baseURL: API_BASE_URL,
   withCredentials: true
 })
 

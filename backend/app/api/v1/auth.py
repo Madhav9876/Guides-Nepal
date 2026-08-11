@@ -106,14 +106,6 @@ def forgot_password(
     # Try to send reset email via Supabase Admin API if configured
     if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY:
         try:
-            # First, check if user exists in backend DB
-            user = db.query(User).filter(User.email == email).first()
-            
-            # If user exists in backend, ensure they exist in Supabase Auth
-            if user:
-                auth_service = AuthService(db)
-                auth_service.ensure_supabase_user(user.email, "")
-            
             # Use Supabase Admin API to send reset email
             # This works even if the user doesn't exist - Supabase will just
             # return success without sending an email

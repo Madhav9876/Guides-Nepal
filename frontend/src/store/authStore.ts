@@ -42,16 +42,16 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) =>
-        state.rememberMe
-          ? {
-              isAuthenticated: state.isAuthenticated,
-              user: state.user,
-              accessToken: state.accessToken,
-              refreshToken: state.refreshToken,
-              rememberMe: true,
-            }
-          : { rememberMe: false },
+      // Always persist the session so users stay logged in across page
+      // refreshes, regardless of the "remember me" checkbox. The checkbox
+      // only controls whether the session survives browser restarts.
+      partialize: (state) => ({
+        isAuthenticated: state.isAuthenticated,
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        rememberMe: state.rememberMe,
+      }),
     }
   )
 );

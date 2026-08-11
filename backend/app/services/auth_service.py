@@ -4,7 +4,7 @@ import logging
 import httpx
 from sqlalchemy.orm import Session
 from app.models.user import User
-from app.schemas.auth import UserCreate
+from app.schemas.auth import UserCreate, UserResponse
 from app.core.security import (
     get_password_hash,
     verify_password,
@@ -146,11 +146,15 @@ class AuthService:
         return user
 
     def create_tokens(self, user: User) -> dict:
+        # Explicitly convert the ORM User to a Pydantic UserResponse so the
+        # response serialization is deterministic and the field alias mapping
+        # (is_active -> isActive) is handled correctly.
+        user_response = UserResponse.model_validate(user)
         return {
             "access_token": create_access_token(user.id),
             "refresh_token": create_refresh_token(user.id),
             "token_type": "bearer",  # nosec
-            "user": user,
+            "user": user_response,
         }
 
     def upsert_social_user(

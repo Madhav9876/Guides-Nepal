@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, CheckCircle2, AlertCircle, Loader2, Lock } from 'lucide-react';
 import { getSupabase } from '../../utils/supabase';
+import { getApiUrl } from '../../config/api';
 
 type Status = 'verifying' | 'ready' | 'submitting' | 'success' | 'error' | 'invalid';
 
@@ -64,8 +65,7 @@ export default function ResetPasswordPage() {
       try {
         const { data: sessionData } = await client.auth.getSession();
         const token = sessionData.session?.access_token;
-        const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
-        await fetch(apiBase + '/auth/sync-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ supabase_access_token: token, password }) });
+        await fetch(getApiUrl('/auth/sync-password'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ supabase_access_token: token, password }) });
       } catch (syncErr) { console.warn('Backend sync failed:', syncErr); }
       await client.auth.signOut();
       setStatus('success');

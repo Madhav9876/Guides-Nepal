@@ -20,7 +20,7 @@ services:
       - key: OPENAI_API_KEY
         sync: false
       - key: BACKEND_CORS_ORIGINS
-        value: https://guides-nepal-frontend.vercel.app,https://guides-nepal-bi2y.vercel.app,https://guides-nepal-dashboard.vercel.app
+        value: https://guides-nepal-nine.vercel.app,https://guides-nepal-bi2y.vercel.app
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY

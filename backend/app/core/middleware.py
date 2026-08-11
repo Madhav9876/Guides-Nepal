@@ -37,7 +37,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "style-src 'self' 'unsafe-inline'; "
             "img-src 'self' data: https:; "
             "font-src 'self'; "
-            "connect-src 'self' https://wuyxvqkokyhjbfzemjyw.supabase.co https://api.openai.com"
+            "connect-src 'self' https://wuyxvqkokyhjbfzemjyw.supabase.co https://api.openai.com https://guides-nepal.onrender.com"
         )
         
         return response

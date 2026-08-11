@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, Facebook } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { getApiUrl } from '../../config/api';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -79,10 +80,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitc
       onClose();
       return;
     }
-    const base = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
     const urls: Record<string, string | undefined> = {
-      google: import.meta.env.VITE_GOOGLE_OAUTH_URL || `${base}/auth/oauth/google/start`,
-      facebook: import.meta.env.VITE_FACEBOOK_OAUTH_URL || `${base}/auth/oauth/facebook/start`,
+      google: import.meta.env.VITE_GOOGLE_OAUTH_URL || getApiUrl('/auth/oauth/google/start'),
+      facebook: import.meta.env.VITE_FACEBOOK_OAUTH_URL || getApiUrl('/auth/oauth/facebook/start'),
       apple: import.meta.env.VITE_APPLE_OAUTH_URL,
     };
     const url = urls[provider];
@@ -106,8 +106,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitc
 
     setLoading(true);
     try {
-      const base = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
-      const resp = await fetch(`${base}/auth/login`, {
+      const resp = await fetch(getApiUrl('/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

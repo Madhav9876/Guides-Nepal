@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, ArrowLeft, Mail, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { getSupabase } from '../../utils/supabase';
+import { getApiUrl } from '../../config/api';
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -64,8 +64,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
       // via the Supabase Admin API. This is more reliable than calling
       // Supabase directly from the frontend because it does not depend on
       // the user already existing in Supabase Auth.
-      const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
-      const resp = await fetch(`${apiBase}/auth/forgot-password`, {
+      const resp = await fetch(getApiUrl('/auth/forgot-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
