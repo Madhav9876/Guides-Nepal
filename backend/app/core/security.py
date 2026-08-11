@@ -111,7 +111,8 @@ def get_user_id_from_token(token: str) -> Optional[int]:
 
         # Verify token type is access token
         token_type = payload.get("type")
-        if token_type != "access":
+        expected_type = "access"  # nosec B105 - token-type literal, not a password
+        if token_type != expected_type:
             logger.warning(f"Invalid token type: {token_type}")
             return None
 
