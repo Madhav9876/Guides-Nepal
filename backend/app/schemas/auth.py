@@ -42,6 +42,7 @@ class ForgotPasswordRequest(BaseModel):
     The endpoint always returns a generic success message regardless of
     whether the email exists, to prevent user enumeration.
     """
+
     email: EmailStr
 
 
@@ -53,5 +54,6 @@ class SyncPasswordRequest(BaseModel):
     password.  password is the plaintext new password (validated and
     hashed server-side).
     """
+
     supabase_access_token: str
     password: str

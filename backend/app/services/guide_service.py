@@ -17,9 +17,7 @@ class GuideService:
 
     def get_guide(self, guide_id: int) -> Optional[Guide]:
         return (
-            self.db.query(Guide)
-            .filter(Guide.id == guide_id, Guide.is_active)
-            .first()
+            self.db.query(Guide).filter(Guide.id == guide_id, Guide.is_active).first()
         )
 
     def get_all_guides(self, city: Optional[str] = None) -> List[Guide]:

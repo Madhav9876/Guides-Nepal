@@ -1,6 +1,7 @@
 """
 Security utilities for authentication, password hashing, and token management
 """
+
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union, cast
 import re
@@ -30,17 +31,22 @@ def validate_password_strength(password: str) -> tuple[bool, str]:
     Returns: (is_valid, error_message)
     """
     if len(password) < settings.MIN_PASSWORD_LENGTH:
-        return False, f"Password must be at least {settings.MIN_PASSWORD_LENGTH} characters"
-    
+        return (
+            False,
+            f"Password must be at least {settings.MIN_PASSWORD_LENGTH} characters",
+        )
+
     if settings.REQUIRE_PASSWORD_UPPERCASE and not re.search(r"[A-Z]", password):
         return False, "Password must contain at least one uppercase letter"
-    
+
     if settings.REQUIRE_PASSWORD_NUMBERS and not re.search(r"[0-9]", password):
         return False, "Password must contain at least one number"
-    
-    if settings.REQUIRE_PASSWORD_SPECIAL and not re.search(r"[!@#$%^&*()_+\-=\[\]{};:,.<>?]", password):
+
+    if settings.REQUIRE_PASSWORD_SPECIAL and not re.search(
+        r"[!@#$%^&*()_+\-=\[\]{};:,.<>?]", password
+    ):
         return False, "Password must contain at least one special character (!@#$%^&*)"
-    
+
     return True, ""
 
 
@@ -102,17 +108,17 @@ def get_user_id_from_token(token: str) -> Optional[int]:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        
+
         # Verify token type is access token
         token_type = payload.get("type")
         if token_type != "access":
             logger.warning(f"Invalid token type: {token_type}")
             return None
-        
+
         sub = payload.get("sub")
         if sub is None:
             return None
-        
+
         try:
             return int(sub)
         except ValueError:
@@ -151,19 +157,18 @@ def sanitize_input(input_string: str, max_length: int = 1000) -> str:
     """
     if not isinstance(input_string, str):
         return ""
-    
+
     # Limit length
     input_string = input_string[:max_length]
-    
+
     # Remove null bytes
     input_string = input_string.replace("\x00", "")
-    
+
     # Remove script tags (basic XSS protection)
     dangerous_patterns = ["<script", "</script>", "javascript:", "onerror=", "onload="]
     for pattern in dangerous_patterns:
         if pattern.lower() in input_string.lower():
             logger.warning(f"Dangerous pattern detected in input: {pattern}")
             input_string = input_string.replace(pattern, "")
-    
-    return input_string
 
+    return input_string

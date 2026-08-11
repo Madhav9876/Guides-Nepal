@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Calculator, ArrowRight, RefreshCw, DollarSign } from 'lucide-react';
 import { useCurrency } from '../../contexts/CurrencyContext';
@@ -26,26 +26,7 @@ export const CurrencyConverterModal: React.FC<CurrencyConverterModalProps> = ({
   const [convertedAmount, setConvertedAmount] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Set default currencies based on current context
-  useEffect(() => {
-    if (currentCurrency) {
-      setFromCurrency(currentCurrency);
-      // Set a different currency for the target
-      const otherCurrencies = availableCurrencies.filter(c => c !== currentCurrency);
-      if (otherCurrencies.length > 0) {
-        setToCurrency(otherCurrencies[0]);
-      }
-    }
-  }, [currentCurrency, availableCurrencies]);
-
-  // Auto-convert when amount or currencies change
-  useEffect(() => {
-    if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
-      handleConvert();
-    }
-  }, [amount, fromCurrency, toCurrency]);
-
-  const handleConvert = async () => {
+  const handleConvert = useCallback(async () => {
     if (!amount || isNaN(Number(amount))) {
       setConvertedAmount('Please enter a valid amount');
       return;
@@ -61,7 +42,7 @@ export const CurrencyConverterModal: React.FC<CurrencyConverterModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [amount, fromCurrency, toCurrency]);
 
   const handleSwapCurrencies = () => {
     setFromCurrency(toCurrency);

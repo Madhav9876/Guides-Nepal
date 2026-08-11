@@ -49,7 +49,7 @@ export const sanitizeInput = (input: string, maxLength: number = 1000): string =
   if (typeof input !== 'string') return '';
 
   let sanitized = input.substring(0, maxLength);
-  sanitized = sanitized.replace(/\x00/g, '');
+  sanitized = sanitized.replace(/\0/g, '');
 
   const dangerousPatterns = [
     /<script/gi,

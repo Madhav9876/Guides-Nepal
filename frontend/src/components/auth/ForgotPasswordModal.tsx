@@ -73,7 +73,6 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
       if (!resp.ok) {
         // Even if the backend returns an error, we treat it as success for
         // security reasons (prevent user enumeration).
-        // eslint-disable-next-line no-console
         console.warn('Password reset request returned non-OK (not shown to user):', resp.status);
       }
 
@@ -81,7 +80,6 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     } catch (err) {
       // This branch is only reached for local configuration errors (e.g.
       // backend unreachable), not for "email not found" cases.
-      // eslint-disable-next-line no-console
       console.error('Failed to send password reset email:', err);
       setStatus('error');
       setErrorMessage(

@@ -9,7 +9,7 @@ from app.core.middleware import (
     SecurityHeadersMiddleware,
     RequestLoggingMiddleware,
     InputValidationMiddleware,
-    HTTPSEnforcementMiddleware
+    HTTPSEnforcementMiddleware,
 )
 from app.api.v1 import auth, bookings, public, ai, profile
 import os
@@ -117,8 +117,4 @@ async def general_exception_handler(request, exc):
     logger.error(f"Unhandled exception: {exc}")
     if settings.DEBUG:
         raise exc
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error"}
-    )
-
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})

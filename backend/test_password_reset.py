@@ -8,6 +8,7 @@ before running:
   SUPABASE_SERVICE_ROLE_KEY
   DATABASE_URL
 """
+
 import sys
 import os
 from pathlib import Path
@@ -17,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # Load env vars from .env if present (do NOT hardcode credentials here)
 from dotenv import load_dotenv
+
 load_dotenv(Path(__file__).parent / ".env")
 
 from app.core.config import settings
@@ -27,7 +29,9 @@ from app.models.user import User
 
 print("Testing password reset flow...")
 print(f"SUPABASE_URL: {settings.SUPABASE_URL}")
-print(f"SUPABASE_SERVICE_ROLE_KEY configured: {bool(settings.SUPABASE_SERVICE_ROLE_KEY)}")
+print(
+    f"SUPABASE_SERVICE_ROLE_KEY configured: {bool(settings.SUPABASE_SERVICE_ROLE_KEY)}"
+)
 
 # Create a test database session
 engine = create_engine(settings.DATABASE_URL)
@@ -40,19 +44,20 @@ try:
     user = db.query(User).filter(User.email == test_email).first()
     print(f"\nTest 1: User lookup for {test_email}")
     print(f"  Result: {'Found' if user else 'Not found'} (expected: Not found)")
-    
+
     # Test 2: Verify AuthService can be instantiated
     auth_service = AuthService(db)
     print(f"\nTest 2: AuthService instantiation")
     print(f"  Result: Success")
-    
+
     # Test 3: Check Supabase connection (list users)
     import httpx
+
     headers = {
         "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
         "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
     }
-    
+
     print(f"\nTest 3: Supabase Admin API connectivity")
     try:
         resp = httpx.get(
@@ -72,16 +77,17 @@ try:
     except Exception as e:
         print(f"  Error: {e}")
         print(f"  Result: Failed to connect to Supabase")
-    
+
     print("\n✅ All basic tests completed successfully")
     print("\nThe password reset fix is ready:")
     print("1. Backend endpoint now calls Supabase Admin API directly")
     print("2. Frontend calls backend instead of Supabase client-side")
     print("3. This ensures users without Supabase accounts can still reset passwords")
-    
+
 except Exception as e:
     print(f"\n❌ Error during testing: {e}")
     import traceback
+
     traceback.print_exc()
 finally:
     db.close()

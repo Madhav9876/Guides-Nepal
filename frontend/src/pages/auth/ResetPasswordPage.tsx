@@ -37,7 +37,7 @@ export default function ResetPasswordPage() {
     if (value.length < 8) { setPasswordError('Password must be at least 8 characters'); return false; }
     if (!/[A-Z]/.test(value)) { setPasswordError('Must contain an uppercase letter'); return false; }
     if (!/[0-9]/.test(value)) { setPasswordError('Must contain a number'); return false; }
-    if (!/[!@#$%^&*()_+\-=\[\]{};:,.<>?]/.test(value)) { setPasswordError('Must contain a special character'); return false; }
+    if (!/[!@#$%^&*()_+\-=[\]{};:,.<>?]/.test(value)) { setPasswordError('Must contain a special character'); return false; }
     setPasswordError(null); return true;
   };
   const validateConfirm = (value: string) => {

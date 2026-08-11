@@ -99,9 +99,11 @@ def forgot_password(
     # Intentionally do NOT check or reveal whether the email exists.
     # We attempt to send a reset email via Supabase for every request to
     # avoid timing attacks that could reveal registered emails.
-    
+
     email = request.email
-    logger.info("Password reset requested for email (existence not confirmed): %s", email)
+    logger.info(
+        "Password reset requested for email (existence not confirmed): %s", email
+    )
 
     # Try to send reset email via Supabase Admin API if configured
     if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY:
@@ -118,14 +120,14 @@ def forgot_password(
                 "email": email,
                 "create_session": True,
             }
-            
+
             resp = httpx.post(
                 f"{settings.SUPABASE_URL}/auth/v1/admin/otp",
                 headers=headers,
                 json=payload,
                 timeout=10.0,
             )
-            
+
             if resp.status_code in (200, 201):
                 logger.info("Password reset email sent successfully to %s", email)
             else:
@@ -141,8 +143,7 @@ def forgot_password(
             logger.error("Unexpected error during password reset: %s", e)
     else:
         logger.warning(
-            "Supabase not configured; cannot send password reset email for %s", 
-            email
+            "Supabase not configured; cannot send password reset email for %s", email
         )
 
     # Always return the same generic message to prevent user enumeration
@@ -170,9 +171,7 @@ async def sync_password(
         # If Supabase is not configured on the backend, we cannot verify the
         # token. Return a soft success so the frontend flow is not blocked
         # (the Supabase password is already updated).
-        logger.warning(
-            "Supabase not configured on backend; skipping password sync."
-        )
+        logger.warning("Supabase not configured on backend; skipping password sync.")
         return {"message": "Password sync skipped (Supabase not configured)"}
 
     # Verify the Supabase access token by calling the Supabase user endpoint.

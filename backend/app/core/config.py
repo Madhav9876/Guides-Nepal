@@ -6,7 +6,7 @@ from typing import List
 
 # Load environment variables from backend/.env so DATABASE_URL, SECRET_KEY, etc.
 # are available via os.getenv below. Without this, the app silently falls back to
-# the local Postgres default and never connects to the configured database.i need to change 
+# the local Postgres default and never connects to the configured database.i need to change
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 # Derive environment flags as plain module constants so they are NOT treated as
@@ -17,16 +17,18 @@ _DEBUG = _ENV == "development"
 
 # Default CORS origins (comma-separated string). Used when the
 # BACKEND_CORS_ORIGINS env var is NOT set (e.g. local development).
-_DEFAULT_CORS_ORIGINS = ",".join([
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:5176",
-    "http://localhost:4173",
-    "http://localhost:3000",
-    "https://guides-nepal-nine.vercel.app",
-    "https://guides-nepal-bi2y.vercel.app",
-])
+_DEFAULT_CORS_ORIGINS = ",".join(
+    [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:4173",
+        "http://localhost:3000",
+        "https://guides-nepal-nine.vercel.app",
+        "https://guides-nepal-bi2y.vercel.app",
+    ]
+)
 
 
 class Settings(BaseSettings):
@@ -44,17 +46,19 @@ class Settings(BaseSettings):
     SECRET_KEY: str = os.getenv("SECRET_KEY", "CHANGEME_IN_PRODUCTION_SECRET_KEY_12345")
     if SECRET_KEY == "CHANGEME_IN_PRODUCTION_SECRET_KEY_12345" and _ENV == "production":
         raise ValueError("❌ SECURITY ERROR: SECRET_KEY must be set in production!")
-    
+
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
-    
+
     # Security Headers
     SECURE_HEADERS: dict = {
         "X-Content-Type-Options": "nosniff",
         "X-Frame-Options": "DENY",
         "X-XSS-Protection": "1; mode=block",
-        "Strict-Transport-Security": "max-age=31536000; includeSubDomains" if not _DEBUG else "",
+        "Strict-Transport-Security": (
+            "max-age=31536000; includeSubDomains" if not _DEBUG else ""
+        ),
         "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
     }
 
@@ -62,11 +66,11 @@ class Settings(BaseSettings):
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_REQUESTS: int = 100
     RATE_LIMIT_PERIOD: int = 60  # seconds
-    
+
     # Authentication
     REQUIRE_HTTPS: bool = not _DEBUG
     TOKEN_ALGORITHM: str = "HS256"
-    
+
     # Password Policy
     MIN_PASSWORD_LENGTH: int = 8
     REQUIRE_PASSWORD_UPPERCASE: bool = True
@@ -74,14 +78,19 @@ class Settings(BaseSettings):
     REQUIRE_PASSWORD_SPECIAL: bool = True
 
     # Dev seeding (guarded - ONLY in development)
-    DEV_ALLOW_SEED: bool = bool(os.getenv("DEV_ALLOW_SEED", False)) if _ENV == "development" else False
-    DEV_SEED_ADMIN_EMAIL: str | None = os.getenv("DEV_SEED_ADMIN_EMAIL") if _ENV == "development" else None
-    DEV_SEED_ADMIN_PASSWORD: str | None = os.getenv("DEV_SEED_ADMIN_PASSWORD") if _ENV == "development" else None
+    DEV_ALLOW_SEED: bool = (
+        bool(os.getenv("DEV_ALLOW_SEED", False)) if _ENV == "development" else False
+    )
+    DEV_SEED_ADMIN_EMAIL: str | None = (
+        os.getenv("DEV_SEED_ADMIN_EMAIL") if _ENV == "development" else None
+    )
+    DEV_SEED_ADMIN_PASSWORD: str | None = (
+        os.getenv("DEV_SEED_ADMIN_PASSWORD") if _ENV == "development" else None
+    )
 
     # Database - Use DATABASE_URL in production for security
     DATABASE_URL: str = os.getenv(
-        "DATABASE_URL",
-        "postgresql://postgres:postgres@localhost:5432/guides_nepal"
+        "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/guides_nepal"
     )
 
     # CORS - Comma-separated list of allowed origins.
@@ -94,11 +103,7 @@ class Settings(BaseSettings):
     @property
     def cors_origins(self) -> List[str]:
         """Parsed list of allowed CORS origins."""
-        return [
-            o.strip()
-            for o in self.BACKEND_CORS_ORIGINS.split(",")
-            if o.strip()
-        ]
+        return [o.strip() for o in self.BACKEND_CORS_ORIGINS.split(",") if o.strip()]
 
     # AI Services
     OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY")
@@ -121,8 +126,8 @@ class Settings(BaseSettings):
     FRONTEND_OAUTH_REDIRECT: str | None = os.getenv("FRONTEND_OAUTH_REDIRECT")
 
     # Supabase (used for password reset email verification on the backend)
-    SUPABASE_URL: str | None = os.getenv('SUPABASE_URL')
-    SUPABASE_SERVICE_ROLE_KEY: str | None = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+    SUPABASE_URL: str | None = os.getenv("SUPABASE_URL")
+    SUPABASE_SERVICE_ROLE_KEY: str | None = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
     # Logging & Monitoring
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO" if not DEBUG else "DEBUG")
@@ -138,4 +143,6 @@ settings = Settings()
 if settings.ENV == "production":
     for origin in settings.cors_origins:
         if origin.startswith("http://") and not origin.startswith("http://localhost"):
-            raise ValueError(f"⚠️  SECURITY WARNING: Non-HTTPS origin in production: {origin}")
+            raise ValueError(
+                f"⚠️  SECURITY WARNING: Non-HTTPS origin in production: {origin}"
+            )
