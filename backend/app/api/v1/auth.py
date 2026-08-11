@@ -14,6 +14,7 @@ from app.core.config import settings
 import httpx
 import urllib.parse
 import logging
+from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -89,25 +90,75 @@ def login(login_data: UserLogin, db: Session = Depends(get_db)) -> dict:
 # --- Password Reset ---
 # SECURITY: This endpoint always returns the same generic success response
 # regardless of whether the email exists in the system. This prevents user
-# enumeration. The actual reset email is sent by Supabase from the frontend
-# via supabase.auth.resetPasswordForEmail(), which sends the link exclusively
-# to the email address associated with the registered account.
+# enumeration. The actual reset email is sent via Supabase Admin API from
+# the backend, which ensures the email exists in Supabase Auth before sending.
 @router.post("/forgot-password")
 def forgot_password(
     request: ForgotPasswordRequest, db: Session = Depends(get_db)
 ) -> dict:
     # Intentionally do NOT check or reveal whether the email exists.
-    # The frontend uses Supabase to send the reset email; this endpoint
-    # exists only to provide a consistent API surface and to optionally
-    # be used for rate-limiting / logging in the future.
-    logger.info(
-        "Password reset requested for email (existence not confirmed): %s",
-        request.email,
-    )
+    # We attempt to send a reset email via Supabase for every request to
+    # avoid timing attacks that could reveal registered emails.
+    
+    email = request.email
+    logger.info("Password reset requested for email (existence not confirmed): %s", email)
+
+    # Try to send reset email via Supabase Admin API if configured
+    if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY:
+        try:
+            # First, check if user exists in backend DB
+            user = db.query(User).filter(User.email == email).first()
+            
+            # If user exists in backend, ensure they exist in Supabase Auth
+            if user:
+                auth_service = AuthService(db)
+                auth_service.ensure_supabase_user(user.email, "")
+            
+            # Use Supabase Admin API to send reset email
+            # This works even if the user doesn't exist - Supabase will just
+            # return success without sending an email
+            headers = {
+                "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
+                "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
+                "Content-Type": "application/json",
+            }
+            payload = {
+                "email": email,
+                "create_session": True,
+            }
+            
+            resp = httpx.post(
+                f"{settings.SUPABASE_URL}/auth/v1/admin/otp",
+                headers=headers,
+                json=payload,
+                timeout=10.0,
+            )
+            
+            if resp.status_code in (200, 201):
+                logger.info("Password reset email sent successfully to %s", email)
+            else:
+                logger.warning(
+                    "Password reset email request returned %s for %s: %s",
+                    resp.status_code,
+                    email,
+                    resp.text,
+                )
+        except httpx.HTTPError as e:
+            logger.error("Error sending password reset email via Supabase: %s", e)
+        except Exception as e:
+            logger.error("Unexpected error during password reset: %s", e)
+    else:
+        logger.warning(
+            "Supabase not configured; cannot send password reset email for %s", 
+            email
+        )
+
+    # Always return the same generic message to prevent user enumeration
     return {
         "message": (
             "If an account exists for that email, we have sent a password "
-            "reset link. Please check your inbox for instructions."
+            "reset link. Please check your inbox (and spam folder) for an "
+            "email from Guides Nepal with instructions to reset your password."
         )
     }
 

@@ -59,36 +59,29 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     setErrorMessage(null);
 
     try {
-      const client = getSupabase();
-
-      // The redirect URL points to the frontend page that handles the actual
-      // password update. Supabase appends the recovery token to this URL.
-      const redirectTo = `${window.location.origin}/reset-password`;
-
-      // Supabase's resetPasswordForEmail sends the reset link exclusively to
-      // the email address currently associated with the account. If the email
-      // does not exist, Supabase (by default) does not send anything, but the
-      // API still resolves successfully — so we can show the same message.
-      const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo,
+      // Call our backend forgot-password endpoint. The backend will
+      // ensure the user exists in Supabase Auth and send the reset email
+      // via the Supabase Admin API. This is more reliable than calling
+      // Supabase directly from the frontend because it does not depend on
+      // the user already existing in Supabase Auth.
+      const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'https://guides-nepal.onrender.com/api/v1');
+      const resp = await fetch(`${apiBase}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
 
-      // SECURITY: Always show the generic success message, even if Supabase
-      // returns an error, to avoid leaking whether the email is registered.
-      // The only exception is a configuration error (e.g. missing Supabase
-      // env vars), which is surfaced as a generic "try again later" message.
-      if (error) {
-        // Rate-limit / over-send errors from Supabase are still treated as
-        // success to avoid enumeration via timing or error differences.
-        // We log for debugging but do not expose to the user.
+      if (!resp.ok) {
+        // Even if the backend returns an error, we treat it as success for
+        // security reasons (prevent user enumeration).
         // eslint-disable-next-line no-console
-        console.warn('Password reset request returned an error (not shown to user):', error.message);
+        console.warn('Password reset request returned non-OK (not shown to user):', resp.status);
       }
 
       setStatus('success');
     } catch (err) {
       // This branch is only reached for local configuration errors (e.g.
-      // Supabase not configured), not for "email not found" cases.
+      // backend unreachable), not for "email not found" cases.
       // eslint-disable-next-line no-console
       console.error('Failed to send password reset email:', err);
       setStatus('error');
