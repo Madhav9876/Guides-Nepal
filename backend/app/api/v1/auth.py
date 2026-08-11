@@ -18,6 +18,64 @@ from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
+
+def _ensure_supabase_user_exists(email: str, settings) -> None:
+    """Create the user in Supabase Auth (if missing) so a recovery email can be sent.
+
+    Our app keeps the source of truth in its own Postgres DB and only mirrors
+    accounts into Supabase Auth on login/register. A user who triggers
+    forgot-password without a Supabase record would otherwise never receive the
+    reset email, because Supabase only emails existing Auth users. We create a
+    placeholder Auth user (auto-confirmed) here using a random password; the real
+    password is set later via the recovery flow's sync-password endpoint.
+    """
+    if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
+        return
+    try:
+        headers = {
+            "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
+            "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
+            "Content-Type": "application/json",
+        }
+        # Check whether the user already exists in Supabase Auth.
+        check = httpx.get(
+            f"{settings.SUPABASE_URL}/auth/v1/admin/users",
+            params={"email": email},
+            headers=headers,
+            timeout=10.0,
+        )
+        if check.status_code == 200 and check.json().get("users"):
+            return  # already exists, nothing to do
+
+        # Not found — create a placeholder Auth user so the recovery email can be sent.
+        import secrets
+
+        placeholder_password = secrets.token_urlsafe(16)
+        create = httpx.post(
+            f"{settings.SUPABASE_URL}/auth/v1/admin/users",
+            headers=headers,
+            json={
+                "email": email,
+                "password": placeholder_password,
+                "email_confirm": True,
+            },
+            timeout=10.0,
+        )
+        if create.status_code in (200, 201):
+            logger.info("Created placeholder Supabase Auth user for %s", email)
+        elif create.status_code == 409:
+            logger.info("Supabase Auth user already exists for %s", email)
+        else:
+            logger.warning(
+                "Supabase Auth user creation failed for %s: %s %s",
+                email,
+                create.status_code,
+                create.text,
+            )
+    except httpx.HTTPError as e:
+        logger.warning("Supabase Auth user check/create error for %s: %s", email, e)
+
+
 router = APIRouter()
 
 
@@ -108,6 +166,13 @@ def forgot_password(
     # Try to send reset email via Supabase Admin API if configured
     if settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY:
         try:
+            # Ensure the user exists in Supabase Auth. Our app stores users in
+            # our own Postgres DB and only syncs to Supabase on login/register,
+            # so a user who has never logged in since that sync was added may not
+            # exist in Supabase yet. `generate_link` (recovery) only emails users
+            # that exist in Supabase Auth, so without this step no email is sent.
+            _ensure_supabase_user_exists(email, settings)
+
             # Use Supabase Admin API `generate_link` with type=recovery. This is
             # the correct endpoint that actually sends a password-reset email to
             # the registered address. (The old code hit /auth/v1/admin/otp, which

@@ -25,3 +25,5 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      - key: RESET_PASSWORD_REDIRECT_URL
+        value: https://guides-nepal-nine.vercel.app/reset-password
