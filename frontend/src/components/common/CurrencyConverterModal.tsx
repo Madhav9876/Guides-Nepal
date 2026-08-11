@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Calculator, ArrowRight, RefreshCw, DollarSign } from 'lucide-react';
 import { useCurrency } from '../../contexts/CurrencyContext';
@@ -19,7 +19,7 @@ export const CurrencyConverterModal: React.FC<CurrencyConverterModalProps> = ({
   defaultFromCurrency = 'USD',
   defaultToCurrency = 'EUR'
 }) => {
-  const { currentCurrency, availableCurrencies } = useCurrency();
+  const { availableCurrencies } = useCurrency();
   const [amount, setAmount] = useState<string>(initialAmount.toString());
   const [fromCurrency, setFromCurrency] = useState<string>(defaultFromCurrency);
   const [toCurrency, setToCurrency] = useState<string>(defaultToCurrency);
