@@ -10,9 +10,9 @@ python-jose[cryptography]
 bcrypt
 python-multipart
 python-dotenv
-black
-ruff
-mypy
+black==26.5.1
+ruff==0.15.21
+mypy==2.3.0
 pytest
 httpx
 bandit
