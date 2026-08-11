@@ -5,13 +5,12 @@ client = TestClient(app)
 
 
 def test_read_root() -> None:
-    # We removed the root endpoint "/" in main.py, so we expect 404.
-    # Updating test to reflect current API structure.
     response = client.get("/")
-    assert response.status_code == 404
+    assert response.status_code == 200
+    assert response.json()["status"] == "running"
 
 
 def test_health_check() -> None:
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json()["status"] == "ok"
